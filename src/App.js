@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import HomePage from './components/HomePage';
+import './styles/tome.css';
 
 function App() {
+  const [isDM, setIsDM] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle('dm', isDM);
+  }, [isDM]);
+
+  useEffect(() => {
+    document.body.classList.toggle('nav-open', navOpen);
+  }, [navOpen]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <HomePage
+      isDM={isDM}
+      onToggleDM={() => setIsDM(d => !d)}
+      onToggleNav={() => setNavOpen(n => !n)}
+      onCloseNav={() => setNavOpen(false)}
+    />
   );
 }
 
