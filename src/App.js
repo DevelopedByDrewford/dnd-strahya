@@ -3,6 +3,9 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import LocationsPage from './components/LocationsPage';
 import CharactersPage from './components/CharactersPage';
+import QuestsPage from './components/QuestsPage';
+import TimelinePage from './components/TimelinePage';
+import MyCharacterPage from './components/MyCharacterPage';
 import './styles/tome.css';
 
 function App() {
@@ -29,6 +32,9 @@ function App() {
       <Route path="/" element={<HomePage {...sharedProps} />} />
       <Route path="/locations" element={<LocationsPage {...sharedProps} />} />
       <Route path="/characters" element={<CharactersPage {...sharedProps} />} />
+      <Route path="/quests" element={<QuestsPage {...sharedProps} />} />
+      <Route path="/timeline" element={<TimelinePage {...sharedProps} />} />
+      <Route path="/my-character" element={<MyCharacterPage {...sharedProps} />} />
     </Routes>
   );
 }

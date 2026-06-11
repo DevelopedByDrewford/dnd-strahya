@@ -1,0 +1,274 @@
+/* ---- page layout ---- */
+.q-app {
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+}
+
+.q-main { min-width: 0; }
+
+/* ---- topbar ---- */
+.q-topbar {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(16,12,11,.92), rgba(16,12,11,.7));
+  border-bottom: 1px solid var(--line);
+  padding: 13px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+
+.q-topbar .q-left { display: flex; align-items: center; gap: 8px; }
+
+/* tabs */
+.q-tabs {
+  display: flex; gap: 4px;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 11px; padding: 3px;
+}
+.q-tab {
+  padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  color: var(--ink-3); cursor: pointer; transition: .16s;
+  border: 1px solid transparent;
+}
+.q-tab.on {
+  color: var(--ink);
+  background: linear-gradient(180deg, rgba(214,171,91,.16), rgba(214,171,91,.04));
+  border-color: rgba(214,171,91,.3);
+  padding: 5px 15px;
+}
+
+/* qlist toggle button — hidden on desktop */
+.qlistToggle {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 9px; cursor: pointer; color: var(--ink-2);
+}
+.qlistToggle svg { width: 18px; height: 18px; }
+
+/* ---- views ---- */
+.q-view { display: none; }
+.q-view.on { display: block; }
+
+/* ============ QUEST BOARD ============ */
+
+.qlayout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  align-items: start;
+}
+
+/* quest list panel */
+.qlist {
+  position: sticky; top: 53px; align-self: start;
+  height: calc(100vh - 53px); overflow-y: auto;
+  border-right: 1px solid var(--line);
+  padding: 18px 14px;
+}
+
+.qlhead {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.qlhead h2 { font-size: 18px; }
+
+.qfilters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.qfilter {
+  font-size: 12px; padding: 4px 11px; border-radius: 30px;
+  border: 1px solid var(--line); color: var(--ink-3); cursor: pointer;
+  background: none; font-family: var(--body);
+}
+.qfilter.on { color: var(--ink); border-color: var(--line-2); background: rgba(255,255,255,.04); }
+
+/* quest card */
+.qcard {
+  padding: 13px 14px; border-radius: 13px;
+  background: var(--bg-2); border: 1px solid var(--line);
+  cursor: pointer; margin-bottom: 10px; transition: .16s;
+}
+.qcard:hover { border-color: var(--line-2); }
+.qcard.sel {
+  border-color: rgba(214,171,91,.4);
+  background: linear-gradient(180deg, rgba(214,171,91,.08), transparent), var(--bg-2);
+}
+.qcard .qt { display: flex; align-items: flex-start; gap: 9px; }
+.qcard .qi {
+  width: 28px; height: 28px; border-radius: 8px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line-2); color: var(--gold-2); margin-top: 1px;
+}
+.qcard .qi svg { width: 14px; height: 14px; }
+.qcard .qnm {
+  font-size: 14.5px; color: var(--ink); font-weight: 600;
+  line-height: 1.2; font-family: var(--display);
+}
+.qcard .qmeta { display: flex; align-items: center; gap: 7px; margin-top: 7px; flex-wrap: wrap; }
+.qbar {
+  height: 5px; border-radius: 4px; background: var(--bg-3); margin-top: 11px; overflow: hidden;
+}
+.qbar > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2)); border-radius: 4px;
+  transition: width .2s;
+}
+.qcard.done { opacity: .62; }
+.qcard.done .qbar > span { background: linear-gradient(90deg, #4a6b3a, var(--live)); }
+
+/* deadline badge */
+.deadline {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px;
+  border: 1px solid var(--line); color: var(--ink-3);
+}
+.deadline.soon  { color: var(--gold-2); border-color: rgba(214,171,91,.4); background: rgba(214,171,91,.08); }
+.deadline.over  { color: #f0b3ad; border-color: rgba(200,70,60,.45); background: rgba(176,48,40,.14); }
+
+/* ---- quest detail ---- */
+.qdetail { min-width: 0; padding: 26px 26px 70px; }
+
+.qhero { margin-bottom: 24px; }
+.qhero .eyebrow { margin-bottom: 9px; }
+.qhero h1 { font-size: 30px; line-height: 1.06; }
+.qhero .qchips {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center;
+}
+
+.qbody { display: grid; grid-template-columns: 1fr 290px; gap: 28px; align-items: start; }
+
+.q-prose { font-family: var(--serif); font-size: 18px; line-height: 1.55; color: var(--ink); max-width: 62ch; }
+.q-sec { margin-bottom: 26px; }
+.q-sec h3 {
+  font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold);
+  font-family: var(--display); font-weight: 600; margin-bottom: 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.q-sec h3 .count-label { color: var(--ink-3); text-transform: none; letter-spacing: 0; font-size: 12px; }
+
+/* checklist */
+.checklist { display: flex; flex-direction: column; gap: 2px; }
+.q-check {
+  display: flex; align-items: center; gap: 12px; padding: 11px 13px;
+  border-radius: 11px; cursor: pointer; border: 1px solid transparent; transition: .14s;
+}
+.q-check:hover { background: rgba(255,255,255,.03); border-color: var(--line); }
+.q-box {
+  width: 21px; height: 21px; border-radius: 6px; border: 1.5px solid var(--line-2); flex: none;
+  display: flex; align-items: center; justify-content: center; transition: .16s;
+}
+.q-box svg { width: 13px; height: 13px; color: #2a1d09; opacity: 0; transition: .16s; }
+.q-check.on .q-box {
+  background: linear-gradient(180deg, var(--gold-2), var(--gold)); border-color: var(--gold);
+}
+.q-check.on .q-box svg { opacity: 1; }
+.q-check .ct { font-size: 14.5px; color: var(--ink); flex: 1; }
+.q-check.on .ct { color: var(--ink-3); text-decoration: line-through; }
+.q-check .cd { font-size: 11px; }
+.addsub {
+  display: flex; align-items: center; gap: 10px; padding: 10px 13px;
+  color: var(--ink-3); font-size: 13px; cursor: pointer; border-radius: 11px;
+}
+.addsub:hover { background: rgba(255,255,255,.03); color: var(--ink-2); }
+.addsub .q-box { border-style: dashed; }
+
+/* right side rail */
+.qside { position: sticky; top: 73px; display: flex; flex-direction: column; gap: 14px; }
+.scard { padding: 15px; border-radius: 13px; background: var(--bg-2); border: 1px solid var(--line); }
+.scard .sk {
+  font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 9px;
+}
+.linkrow {
+  display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; cursor: pointer;
+}
+.linkrow:hover { background: var(--bg-3); }
+.linkrow .nm { font-size: 13px; color: var(--ink); font-weight: 600; }
+.linkrow .ty { font-size: 11px; color: var(--ink-3); }
+.reward { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink); padding: 5px 0; }
+.reward .ri { color: var(--gold-2); }
+.reward .ri svg { width: 16px; height: 16px; }
+
+/* secret objective (DM) */
+.q-secret { padding: 14px 15px; border-radius: 13px; }
+.q-secret h3 { color: #f0b3ad; }
+.q-secret .q-prose { font-size: 15px; color: #ecd9c8; }
+
+/* ============ LOOT ============ */
+.lootwrap { padding: 24px 26px 70px; max-width: 1000px; }
+
+.loothead {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 12px;
+}
+.loothead h1 { font-size: 28px; margin-top: 6px; }
+
+.purse { display: flex; gap: 10px; flex-wrap: wrap; }
+.purse-coin {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  border-radius: 11px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.purse-coin b { font-family: var(--display); font-size: 17px; color: var(--gold-2); }
+.purse-coin span { font-size: 11px; color: var(--ink-3); }
+
+.loottable { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.lrow {
+  display: grid;
+  grid-template-columns: auto 1fr 150px 130px 90px;
+  gap: 14px; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+}
+.lrow:last-child { border-bottom: 0; }
+.lrow.lhead {
+  background: var(--bg-3); font-size: 10px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.lrow:not(.lhead):hover { background: rgba(255,255,255,.02); }
+.litem { display: flex; align-items: center; gap: 12px; }
+.lthumb {
+  width: 38px; height: 38px; border-radius: 9px; flex: none;
+  border: 1px solid var(--line-2);
+  background: radial-gradient(120% 120% at 60% 0%, rgba(214,171,91,.2), transparent 55%), var(--bg-3);
+  display: flex; align-items: center; justify-content: center; color: var(--gold-2);
+}
+.lthumb svg { width: 18px; height: 18px; }
+.lnm { font-size: 14px; color: var(--ink); font-weight: 600; }
+.lsub { font-size: 11.5px; color: var(--ink-3); }
+.lsub.dm-secret { color: #f0b3ad; }
+.lclaim-badge {
+  font-size: 12px; padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--line-2); color: var(--ink-2);
+  display: inline-block;
+}
+.lclaim-badge.open { color: var(--gold-2); border-color: rgba(214,171,91,.4); background: rgba(214,171,91,.08); }
+.lval { font-family: var(--display); font-size: 14px; color: var(--ink); }
+
+/* ---- responsive ---- */
+@media (max-width: 1180px) {
+  .qbody { grid-template-columns: 1fr; }
+  .qside { position: static; }
+}
+
+@media (max-width: 980px) {
+  .qlayout { grid-template-columns: 1fr; }
+
+  .qlist {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 320px; height: 100vh; z-index: 45;
+    background: var(--bg-1); transform: translateX(-100%);
+    transition: .25s; border-right: 1px solid var(--line-2);
+  }
+  body.qlist-open .qlist { transform: none; box-shadow: 0 0 60px rgba(0,0,0,.7); }
+  .qlistToggle { display: inline-flex; }
+
+  .lrow { grid-template-columns: auto 1fr 110px; }
+  .lfound, .lhfound, .lval-col, .lhval { display: none; }
+}
+
+@media (max-width: 760px) {
+  .q-app { grid-template-columns: 1fr; }
+  .hamburger { display: inline-flex; }
+  .q-tab { padding: 6px 11px; }
+  .qdetail, .lootwrap { padding: 18px; }
+  .q-topbar { padding: 11px 14px; }
+  .lrow { grid-template-columns: auto 1fr; }
+  .lclaim-col, .lhclaim, .lval-col, .lhval { display: none; }
+}

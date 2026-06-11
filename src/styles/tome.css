@@ -273,7 +273,7 @@ body.dm .reveal-frame::before {
 
 /* ---------- scrim (shared overlay for nav + tree drawers) ---------- */
 .scrim { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, .6); z-index: 44; }
-body.nav-open .scrim, body.tree-open .scrim, body.roster-open .scrim { display: block; }
+body.nav-open .scrim, body.tree-open .scrim, body.roster-open .scrim, body.qlist-open .scrim, body.srail-open .scrim { display: block; }
 
 /* hamburger / tree-toggle — hidden by default, shown per-breakpoint in each page */
 .hamburger { display: none; }
