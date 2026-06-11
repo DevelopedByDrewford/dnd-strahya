@@ -76,10 +76,12 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav }) 
                     label="Locations" count={9} sub="Vallaki, Krezk & beyond"
                   />
                 </Link>
-                <HubTile
-                  icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>}
-                  label="Characters" count={47} sub="Allies & enemies"
-                />
+                <Link to='/characters'>
+                  <HubTile
+                    icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>}
+                    label="Characters" count={47} sub="Allies & enemies"
+                  />
+                </Link>
                 <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5l8-2 8 2v6c0 5-4 8-8 10-4-2-8-5-8-10z"/></svg>}
                   label="Factions" count={5} sub="Powers in the land"

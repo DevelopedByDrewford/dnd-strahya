@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import LocationsPage from './components/LocationsPage';
+import CharactersPage from './components/CharactersPage';
 import './styles/tome.css';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
     <Routes>
       <Route path="/" element={<HomePage {...sharedProps} />} />
       <Route path="/locations" element={<LocationsPage {...sharedProps} />} />
+      <Route path="/characters" element={<CharactersPage {...sharedProps} />} />
     </Routes>
   );
 }
