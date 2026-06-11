@@ -294,10 +294,9 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
     : <b>{loc.name}</b>;
 
   return (
-    <>
+    <div className="app">
       <div className="scrim" onClick={closeAll} />
-      <div className="app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="main">
           <div className="loc-topbar">
@@ -344,6 +343,5 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
           </div>
         </div>
       </div>
-    </>
   );
 }

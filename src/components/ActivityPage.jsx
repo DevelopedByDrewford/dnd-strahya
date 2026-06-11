@@ -150,10 +150,9 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
   const allCount = ACTIVITY.filter(a => !a.dm || isDM).length;
 
   return (
-    <>
+    <div className="act-app">
       <div className="scrim" onClick={onCloseNav} />
-      <div className="act-app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="act-main">
           <div className="act-topbar">
@@ -208,6 +207,5 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
           </div>
         </div>
       </div>
-    </>
   );
 }

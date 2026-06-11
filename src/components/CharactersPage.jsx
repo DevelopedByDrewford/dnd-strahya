@@ -214,6 +214,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
 
   return (
     <div className="char-app">
+      <div className="scrim" onClick={closeAll} />
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="char-main">
@@ -288,8 +289,6 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
         </div>
       </div>
 
-      {/* Shared scrim */}
-      <div className="scrim" onClick={closeAll} />
     </div>
   );
 }

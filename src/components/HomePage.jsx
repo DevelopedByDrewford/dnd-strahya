@@ -28,10 +28,9 @@ const FeedItem = ({ initials, dmAvatar, children, when }) => (
 
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   return (
-    <>
+    <div className="app">
       <div className="scrim" onClick={onCloseNav} />
-      <div className="app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="main">
           <div className="topbar">
@@ -139,6 +138,5 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
           </div>
         </div>
       </div>
-    </>
   );
 }

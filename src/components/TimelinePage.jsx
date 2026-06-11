@@ -143,6 +143,7 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
 
   return (
     <div className="tl-app">
+      <div className="scrim" onClick={closeAll} />
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="tl-main">
@@ -194,8 +195,6 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
         </div>
       </div>
 
-      {/* Shared scrim */}
-      <div className="scrim" onClick={closeAll} />
     </div>
   );
 }

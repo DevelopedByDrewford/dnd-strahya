@@ -257,6 +257,7 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
 
   return (
     <div className="lt-app">
+      <div className="scrim" onClick={onCloseNav} />
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="lt-main">
@@ -313,7 +314,6 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
         />
       )}
 
-      <div className="scrim" onClick={onCloseNav} />
     </div>
   );
 }
