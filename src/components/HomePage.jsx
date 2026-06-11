@@ -86,10 +86,12 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav }) 
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5l8-2 8 2v6c0 5-4 8-8 10-4-2-8-5-8-10z"/></svg>}
                   label="Factions" count={5} sub="Powers in the land"
                 />
-                <HubTile
-                  icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg>}
-                  label="Quests" count={6} sub="2 nearing deadline"
-                />
+                <Link to="/quests">
+                  <HubTile
+                    icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg>}
+                    label="Quests" count={6} sub="2 nearing deadline"
+                  />
+                </Link>
                 <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg>}
                   label="Loot" count={18} sub="1,204 gp pooled"

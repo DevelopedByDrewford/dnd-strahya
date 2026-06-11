@@ -13,6 +13,8 @@ const PLUS_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 const NOTE_LABELS = { pub: 'Public', priv: 'Private', dm: 'DM Only' };
 
+// create variable 'hello' 
+
 function CharacterDetail({ id, isDM }) {
   const ch = getChar(id);
   const [noteFilter, setNoteFilter] = useState('all');
