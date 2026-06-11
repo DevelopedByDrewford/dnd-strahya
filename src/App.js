@@ -8,21 +8,36 @@ import TimelinePage from './components/TimelinePage';
 import MyCharacterPage from './components/MyCharacterPage';
 import LootPage from './components/LootPage';
 import ActivityPage from './components/ActivityPage';
+import SignInModal from './components/SignInModal';
+import { useAuth } from './hooks/useAuth';
 import './styles/tome.css';
 
 function App() {
+  const { user, profile, signIn, signOut, updateProfile } = useAuth();
   const [isDM, setIsDM] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
-    document.body.classList.toggle('dm', isDM);
-  }, [isDM]);
+    const dm = profile?.role === 'dm';
+    setIsDM(dm);
+    document.body.classList.toggle('dm', dm);
+  }, [profile]);
 
   useEffect(() => {
     document.body.classList.toggle('nav-open', navOpen);
   }, [navOpen]);
 
+  const authProps = {
+    user,
+    profile,
+    onSignIn: () => setShowSignIn(true),
+    onSignOut: signOut,
+    onProfileUpdate: updateProfile,
+  };
+
   const sharedProps = {
+    ...authProps,
     isDM,
     onToggleDM: () => setIsDM(d => !d),
     onToggleNav: () => setNavOpen(n => !n),
@@ -30,16 +45,24 @@ function App() {
   };
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage {...sharedProps} />} />
-      <Route path="/locations" element={<LocationsPage {...sharedProps} />} />
-      <Route path="/characters" element={<CharactersPage {...sharedProps} />} />
-      <Route path="/quests" element={<QuestsPage {...sharedProps} />} />
-      <Route path="/timeline" element={<TimelinePage {...sharedProps} />} />
-      <Route path="/my-character" element={<MyCharacterPage {...sharedProps} />} />
-      <Route path="/loot" element={<LootPage {...sharedProps} />} />
-      <Route path="/activity" element={<ActivityPage {...sharedProps} />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage {...sharedProps} />} />
+        <Route path="/locations" element={<LocationsPage {...sharedProps} />} />
+        <Route path="/characters" element={<CharactersPage {...sharedProps} />} />
+        <Route path="/quests" element={<QuestsPage {...sharedProps} />} />
+        <Route path="/timeline" element={<TimelinePage {...sharedProps} />} />
+        <Route path="/my-character" element={<MyCharacterPage {...sharedProps} />} />
+        <Route path="/loot" element={<LootPage {...sharedProps} />} />
+        <Route path="/activity" element={<ActivityPage {...sharedProps} />} />
+      </Routes>
+      {showSignIn && (
+        <SignInModal
+          onSignIn={signIn}
+          onClose={() => setShowSignIn(false)}
+        />
+      )}
+    </>
   );
 }
 

@@ -99,7 +99,7 @@ function TimelineEntry({ e, isDM, entryRef }) {
   );
 }
 
-export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [activeId, setActiveId]     = useState(TIMELINE[0].id);
   const [srailOpen, setSrailOpen]   = useState(false);
   const entryRefs = useRef({});
@@ -143,7 +143,7 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
 
   return (
     <div className="tl-app">
-      <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="tl-main">
         <div className="tl-topbar">

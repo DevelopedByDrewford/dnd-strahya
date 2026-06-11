@@ -239,7 +239,7 @@ function LootView({ isDM }) {
   );
 }
 
-export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [activeTab, setActiveTab]       = useState('quests');
   const [quests, setQuests]             = useState(QUESTS_INITIAL);
   const [selectedId, setSelectedId]     = useState('soul-coins');
@@ -273,7 +273,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav }
 
   return (
     <div className="q-app">
-      <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="q-main">
         <div className="q-topbar">

@@ -1,0 +1,98 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .72);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-box {
+  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent 40%), var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  box-shadow: 0 32px 80px -20px rgba(0,0,0,.9);
+  padding: 36px 32px 28px;
+  width: min(380px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-sigil {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background: radial-gradient(120% 120% at 50% 0%, rgba(214,171,91,.22), transparent 60%), var(--bg-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.modal-sigil svg { width: 24px; height: 24px; }
+
+.modal-title {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: .04em;
+  margin: 0;
+}
+
+.modal-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 0 0 12px;
+}
+
+.modal-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.modal-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.modal-form input {
+  font-family: var(--body);
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-1);
+  color: var(--ink);
+  outline: none;
+  transition: .15s;
+}
+.modal-form input:focus {
+  border-color: rgba(214, 171, 91, .45);
+  box-shadow: 0 0 0 3px rgba(214, 171, 91, .08);
+}
+.modal-form input::placeholder { color: var(--ink-3); }
+
+.modal-form .btn {
+  margin-top: 4px;
+  width: 100%;
+  justify-content: center;
+}
+
+.modal-error {
+  font-size: 12.5px;
+  color: #f0b3ad;
+  margin: 0;
+  text-align: center;
+}

@@ -250,7 +250,7 @@ function LocationDetail({ loc, onSelect }) {
 }
 
 // ---- Main page ----
-export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [selectedId, setSelectedId] = useState('blue-water-inn');
   const [collapsedIds, setCollapsedIds] = useState(new Set());
   const [treeOpen, setTreeOpen] = useState(false);
@@ -297,14 +297,14 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
     <>
       <div className="scrim" onClick={closeAll} />
       <div className="app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="main">
           <div className="loc-topbar">
+            <button className="btn icon ghost hamburger" onClick={onToggleNav}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
             <div className="loc-crumb">
-              <button className="btn icon ghost hamburger" onClick={onToggleNav}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-              </button>
               <button className="btn icon ghost treeToggle" onClick={() => setTreeOpen(o => !o)}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
               </button>

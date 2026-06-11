@@ -135,7 +135,7 @@ function ActivityStream({ items }) {
 
 // ── ActivityPage ──────────────────────────────────────────────────────────────
 
-export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [activeCat, setActiveCat] = useState('all');
 
   const visibleItems = useMemo(() => {
@@ -153,7 +153,7 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
     <>
       <div className="scrim" onClick={onCloseNav} />
       <div className="act-app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="act-main">
           <div className="act-topbar">

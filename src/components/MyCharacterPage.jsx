@@ -58,7 +58,7 @@ const SLOT_INITIAL = {
   'cd':  [true],
 };
 
-export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [editing, setEditing] = useState(false);
   const [slots, setSlots]     = useState(SLOT_INITIAL);
 
@@ -87,7 +87,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
 
   return (
     <div className="mc-app">
-      <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="mc-main">
         <div className="mc-topbar">

@@ -182,7 +182,7 @@ function CharacterDetail({ id, isDM }) {
   );
 }
 
-export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [selectedId, setSelectedId] = useState('strahd');
   const [rosterOpen, setRosterOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -214,14 +214,18 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
 
   return (
     <div className="char-app">
-      <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="char-main">
         <div className="char-topbar">
-          <button className="rosterToggle" onClick={() => setRosterOpen(o => !o)}
-            dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
           <button className="hamburger btn sm icon" onClick={onToggleNav}
             dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
+          <button className="rosterToggle" onClick={() => setRosterOpen(o => !o)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="9" cy="7" r="3"/><path d="M3 21c0-4 2.7-6 6-6s6 2 6 6"/>
+              <circle cx="17" cy="9" r="2.5"/><path d="M21 21c0-3-1.5-4.5-4-5"/>
+            </svg>
+          </button>
           <div className="char-crumb">
             <Link to="/">Home</Link>
             <span className="sep">›</span>

@@ -276,9 +276,10 @@ body.dm .reveal-frame::before {
 .scrim { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, .6); z-index: 44; }
 body.nav-open .scrim, body.tree-open .scrim, body.roster-open .scrim, body.qlist-open .scrim, body.srail-open .scrim { display: block; }
 
-/* hamburger / tree-toggle — hidden by default, shown per-breakpoint in each page */
+/* hamburger — hidden on desktop, always shown on mobile */
 .hamburger { display: none; }
 .treeToggle { display: none; }
+@media (max-width: 760px) { .hamburger { display: inline-flex !important; } }
 
 /* ---------- utility ---------- */
 .row { display: flex; gap: 16px; }
@@ -289,6 +290,10 @@ body.nav-open .scrim, body.tree-open .scrim, body.roster-open .scrim, body.qlist
 .grow { flex: 1; min-width: 0; }
 .gap-s { gap: 8px; }
 .gap-l { gap: 24px; }
+
+@media (max-width: 760px) {
+  .dmswitch { display: none !important; }
+}
 
 @media (prefers-reduced-motion: no-preference) {
   @keyframes flicker { 0%, 100% { opacity: 1; } 45% { opacity: .86; } 55% { opacity: .95; } 70% { opacity: .8; } }

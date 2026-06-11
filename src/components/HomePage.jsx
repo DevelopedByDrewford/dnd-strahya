@@ -26,12 +26,12 @@ const FeedItem = ({ initials, dmAvatar, children, when }) => (
   </div>
 );
 
-export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   return (
     <>
       <div className="scrim" onClick={onCloseNav} />
       <div className="app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="main">
           <div className="topbar">

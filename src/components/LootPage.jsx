@@ -224,7 +224,7 @@ function AddLootModal({ isDM, onClose, onAdd }) {
 
 // ── LootPage ──────────────────────────────────────────────────────────────────
 
-export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) {
+export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const { items, totalGp, addItem, claimItem } = useLoot(CAMPAIGN_ID, { isDM, userId: CURRENT_USER });
@@ -257,7 +257,7 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav }) 
 
   return (
     <div className="lt-app">
-      <Sidebar isDM={isDM} onCloseNav={onCloseNav} />
+      <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="lt-main">
         <div className="lt-topbar">

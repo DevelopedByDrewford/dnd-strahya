@@ -33,6 +33,12 @@ service cloud.firestore {
              request.resource.data.recordVisibility == resource.data.recordVisibility;
     }
 
+    // ── user profiles ─────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Each user can read and write only their own profile.
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
     // ── loot items ────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/loot/{itemId} {
       // Visitor: only public docs
