@@ -39,6 +39,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+a:link,
+a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -264,6 +270,14 @@ body.dm .reveal-frame::before {
   pointer-events: none;
   box-shadow: 0 0 26px -6px var(--blood-glow);
 }
+
+/* ---------- scrim (shared overlay for nav + tree drawers) ---------- */
+.scrim { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, .6); z-index: 44; }
+body.nav-open .scrim, body.tree-open .scrim { display: block; }
+
+/* hamburger / tree-toggle — hidden by default, shown per-breakpoint in each page */
+.hamburger { display: none; }
+.treeToggle { display: none; }
 
 /* ---------- utility ---------- */
 .row { display: flex; gap: 16px; }

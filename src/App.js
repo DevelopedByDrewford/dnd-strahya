@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
+import LocationsPage from './components/LocationsPage';
 import './styles/tome.css';
 
 function App() {
@@ -14,13 +16,18 @@ function App() {
     document.body.classList.toggle('nav-open', navOpen);
   }, [navOpen]);
 
+  const sharedProps = {
+    isDM,
+    onToggleDM: () => setIsDM(d => !d),
+    onToggleNav: () => setNavOpen(n => !n),
+    onCloseNav: () => setNavOpen(false),
+  };
+
   return (
-    <HomePage
-      isDM={isDM}
-      onToggleDM={() => setIsDM(d => !d)}
-      onToggleNav={() => setNavOpen(n => !n)}
-      onCloseNav={() => setNavOpen(false)}
-    />
+    <Routes>
+      <Route path="/" element={<HomePage {...sharedProps} />} />
+      <Route path="/locations" element={<LocationsPage {...sharedProps} />} />
+    </Routes>
   );
 }
 
