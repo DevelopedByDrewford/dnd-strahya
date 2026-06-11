@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { QI, QUESTS_INITIAL, LOOT } from '../data/quests';
 import './QuestsPage.css';
