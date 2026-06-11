@@ -92,10 +92,12 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav }) 
                     label="Quests" count={6} sub="2 nearing deadline"
                   />
                 </Link>
-                <HubTile
-                  icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg>}
-                  label="Loot" count={18} sub="1,204 gp pooled"
-                />
+                <Link to="/loot">
+                  <HubTile
+                    icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg>}
+                    label="Loot" count={18} sub="1,204 gp pooled"
+                  />
+                </Link>
                 <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>}
                   label="Lore" count={23} sub="Histories & omens"
@@ -132,7 +134,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav }) 
               <FeedItem initials="DM" dmAvatar when="just now · party notified"><b>You (DM)</b> revealed <b>Castle Ravenloft</b></FeedItem>
               <FeedItem initials="M" when="3 hours ago"><b>Marian</b> claimed <b>Potion of Healing ×2</b></FeedItem>
               <FeedItem initials="T" when="3 hours ago"><b>Tessa</b> joined the session</FeedItem>
-              <span className="seeall">View all activity →</span>
+              <Link to="/activity" className="seeall">View all activity →</Link>
             </div>
           </div>
         </div>

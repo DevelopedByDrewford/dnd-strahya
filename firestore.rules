@@ -1,0 +1,67 @@
+rules_version = '2';
+
+// Role model:
+//   Visitor  — request.auth == null
+//   Player   — request.auth != null
+//   DM/admin — request.auth != null && request.auth.token.role == 'dm'
+//              (set via Firebase Admin SDK custom claims)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isDM() {
+      return request.auth != null && request.auth.token.role == 'dm';
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isPublicDoc() {
+      return resource.data.recordVisibility == 'public';
+    }
+
+    // Only the claim-related fields are changing (used for player claim/unclaim).
+    function onlyClaiming() {
+      let claimFields = ['claimBy', 'claimOpen', 'updatedAt'];
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(claimFields);
+    }
+
+    // Player cannot touch the recordVisibility field.
+    function noVisibilityChange() {
+      return !('recordVisibility' in request.resource.data) ||
+             request.resource.data.recordVisibility == resource.data.recordVisibility;
+    }
+
+    // ── loot items ────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/loot/{itemId} {
+      // Visitor: only public docs
+      // Player: all public docs (client must query where recordVisibility=='public')
+      // DM: everything
+      allow get: if isDM() || isPublicDoc();
+      allow list: if isDM() || isSignedIn();
+
+      // Player can create items (always public by default).
+      allow create: if isDM() || (
+        isSignedIn() &&
+        request.resource.data.recordVisibility == 'public'
+      );
+
+      // Player can edit public fields or claim/unclaim.
+      // DM can edit anything.
+      allow update: if isDM() || (
+        isSignedIn() && isPublicDoc() && noVisibilityChange()
+      );
+
+      // Only DM can delete.
+      allow delete: if isDM();
+    }
+
+    // ── DM-only loot secrets ──────────────────────────────────────────────────
+    // Contains true identity of unidentified items, etc.
+    // Players and visitors must never receive these docs.
+    match /campaigns/{campaignId}/lootDm/{itemId} {
+      allow read, write: if isDM();
+    }
+  }
+}

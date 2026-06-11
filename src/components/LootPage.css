@@ -1,0 +1,177 @@
+/* ---- page shell ---- */
+.lt-app {
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+}
+
+.lt-main { min-width: 0; }
+
+/* ---- topbar ---- */
+.lt-topbar {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(16, 12, 11, .92), rgba(16, 12, 11, .7));
+  border-bottom: 1px solid var(--line);
+  padding: 13px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+
+/* ---- content wrapper ---- */
+.lt-wrap { padding: 26px 26px 70px; max-width: 1060px; }
+
+/* ---- header ---- */
+.lt-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.lt-head h1 { font-size: 30px; margin-top: 6px; }
+
+/* ---- purse ---- */
+.lt-purse { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.lt-purse-coin {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  border-radius: 11px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.lt-purse-coin b { font-family: var(--display); font-size: 17px; color: var(--gold-2); }
+.lt-purse-coin span { font-size: 11px; color: var(--ink-3); }
+
+/* ---- table ---- */
+.lt-table { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+
+.lt-row {
+  display: grid;
+  grid-template-columns: 38px 1fr 160px 140px 90px;
+  gap: 14px; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+}
+.lt-row:last-child { border-bottom: 0; }
+.lt-head-row {
+  background: var(--bg-3); font-size: 10px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-3);
+  display: grid;
+  grid-template-columns: 38px 1fr 160px 140px 90px;
+  gap: 14px; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+}
+.lt-row:not(.lt-head-row):hover { background: rgba(255, 255, 255, .02); }
+
+/* ---- row cells ---- */
+.lt-thumb {
+  width: 38px; height: 38px; border-radius: 9px; flex: none;
+  border: 1px solid var(--line-2);
+  background: radial-gradient(120% 120% at 60% 0%, rgba(214, 171, 91, .2), transparent 55%), var(--bg-3);
+  display: flex; align-items: center; justify-content: center; color: var(--gold-2);
+}
+.lt-thumb svg { width: 18px; height: 18px; }
+
+.lt-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lt-nm { font-size: 14px; color: var(--ink); font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lt-sub { font-size: 11.5px; color: var(--ink-3); line-height: 1.3; }
+.lt-secret { color: #f0b3ad; }
+
+.lt-found { font-size: 12.5px; color: var(--ink-3); }
+
+/* ---- claim pill / button ---- */
+.lt-claim {
+  display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--line-2); color: var(--ink-2);
+  background: none; font-family: var(--body); cursor: default; white-space: nowrap;
+  transition: .15s;
+}
+.lt-claim.open {
+  color: var(--gold-2); border-color: rgba(214, 171, 91, .4);
+  background: rgba(214, 171, 91, .08); cursor: pointer;
+}
+.lt-claim.open:hover { background: rgba(214, 171, 91, .16); }
+.lt-claim.releasable { cursor: pointer; }
+.lt-claim.releasable:hover { border-color: var(--line-2); background: var(--bg-3); }
+
+.lt-val { font-family: var(--display); font-size: 14px; color: var(--ink); }
+
+/* ---- empty state ---- */
+.lt-empty {
+  border: 1px dashed var(--line-2); border-radius: 14px;
+  padding: 48px 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+
+/* ---- modal ---- */
+.lt-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0, 0, 0, .65);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.lt-modal {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .025), transparent 35%), var(--bg-1);
+  border: 1px solid var(--line-2); border-radius: 18px;
+  width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .9);
+}
+.lt-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px 0;
+}
+.lt-modal-head h2 { font-size: 20px; }
+
+/* ---- form ---- */
+.lt-form { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 14px; }
+
+.lt-field { display: flex; flex-direction: column; gap: 6px; }
+.lt-field label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-family: var(--display); font-weight: 600; }
+.lt-field input,
+.lt-field select,
+.lt-field textarea {
+  background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 10px;
+  color: var(--ink); font-family: var(--body); font-size: 14px;
+  padding: 9px 13px; outline: none; transition: .15s;
+}
+.lt-field input:focus,
+.lt-field select:focus,
+.lt-field textarea:focus { border-color: rgba(214, 171, 91, .5); }
+.lt-field input::placeholder,
+.lt-field textarea::placeholder { color: var(--ink-3); }
+.lt-field select option { background: var(--bg-2); }
+.lt-field textarea { resize: vertical; min-height: 64px; }
+
+.lt-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.lt-form-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+/* ---- icon selector ---- */
+.lt-icon-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.lt-icon-opt {
+  width: 44px; height: 44px; border-radius: 10px; cursor: pointer;
+  border: 1.5px solid var(--line); color: var(--ink-3);
+  background: var(--bg-2); display: flex; align-items: center; justify-content: center;
+  transition: .15s;
+}
+.lt-icon-opt svg { width: 18px; height: 18px; }
+.lt-icon-opt.sel {
+  border-color: rgba(214, 171, 91, .5); color: var(--gold-2);
+  background: rgba(214, 171, 91, .1);
+}
+.lt-icon-opt:hover:not(.sel) { border-color: var(--line-2); color: var(--ink-2); }
+
+/* ---- responsive ---- */
+
+/* tablet: hide "found at" */
+@media (max-width: 900px) {
+  .lt-row { grid-template-columns: 38px 1fr 140px 90px; }
+  .lt-head-row { grid-template-columns: 38px 1fr 140px 90px; }
+  .lt-found, .lt-hfound { display: none; }
+}
+
+/* mobile: hide sidebar + claim + value */
+@media (max-width: 760px) {
+  .lt-app { grid-template-columns: 1fr; }
+  .hamburger { display: inline-flex; }
+  .lt-wrap { padding: 18px 16px 60px; }
+  .lt-topbar { padding: 11px 14px; }
+  .lt-row { grid-template-columns: 38px 1fr; }
+  .lt-head-row { grid-template-columns: 38px 1fr; }
+  .lt-claim-col, .lt-hclaim, .lt-val, .lt-hval { display: none; }
+}
