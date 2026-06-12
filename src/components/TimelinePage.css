@@ -195,6 +195,20 @@
   .srailToggle { display: inline-flex; }
 }
 
+/* ---- DM entry actions ---- */
+.entry-dm-actions {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+.dm .entry-dm-actions,
+body.dm .entry-dm-actions { display: inline-flex; }
+
+/* timeline modal size override */
+.modal-overlay .modal-box.tl-modal { width: min(620px, 100%); }
+.tl-modal-form { padding-bottom: 0; }
+
 @media (max-width: 760px) {
   .tl-app { grid-template-columns: 1fr; }
   .hamburger { display: inline-flex; }

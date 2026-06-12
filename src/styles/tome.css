@@ -163,6 +163,12 @@ h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; margin: 0; lette
 .btn.gold { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #2a1d09; border-color: #9c7a31; font-weight: 700; }
 .btn.ghost { background: transparent; }
 .btn.icon { padding: 8px; }
+.btn.xs { padding: 4px 9px; font-size: 11.5px; border-radius: 7px; }
+.btn.xs svg { width: 12px; height: 12px; }
+.btn.primary { background: linear-gradient(180deg, rgba(214,171,91,.2), rgba(214,171,91,.1)); border-color: rgba(214,171,91,.4); color: var(--gold-2); }
+.btn.primary:hover { background: linear-gradient(180deg, rgba(214,171,91,.28), rgba(214,171,91,.16)); border-color: rgba(214,171,91,.6); }
+.btn.danger { background: linear-gradient(180deg, rgba(200,70,60,.18), rgba(176,48,40,.12)); border-color: rgba(200,70,60,.4); color: #f0b3ad; }
+.btn.danger:hover { border-color: rgba(200,70,60,.65); background: rgba(176,48,40,.22); }
 
 /* ---------- avatar / image placeholders ---------- */
 .av {
@@ -298,4 +304,125 @@ body.nav-open .scrim, body.tree-open .scrim, body.roster-open .scrim, body.qlist
 @media (prefers-reduced-motion: no-preference) {
   @keyframes flicker { 0%, 100% { opacity: 1; } 45% { opacity: .86; } 55% { opacity: .95; } 70% { opacity: .8; } }
   .flame { animation: flicker 3.5s ease-in-out infinite; }
+}
+
+/* ============================================================
+   MODAL SYSTEM — shared by all overlay modals
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+
+/* Use parent selector to win specificity over SignInModal.css's plain .modal-box */
+.modal-overlay .modal-box {
+  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent 40%), var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  box-shadow: 0 32px 80px -20px rgba(0,0,0,.9);
+  width: min(520px, 100%);
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+  /* reset any SignInModal.css overrides */
+  padding: 0;
+  align-items: stretch;
+  gap: 0;
+}
+
+.modal-hd {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0;
+}
+.modal-hd h2 { font-size: 17px; font-family: var(--display); letter-spacing: .04em; margin: 0; }
+
+.modal-body {
+  padding: 18px 22px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 13px;
+}
+
+.modal-ft {
+  padding: 12px 22px 18px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
+}
+
+/* two-column field pairing */
+.fgrid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fgrid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.fgrid-ab { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; }
+.frow-ab { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.frow-ab .flabel { font-size: 10px; letter-spacing: .08em; text-align: center; margin: 0; }
+.frow-ab .finput { text-align: center; padding: 6px 4px; }
+.fmod { font-size: 13px; font-weight: 600; color: var(--gold-2); text-align: center; }
+
+/* form rows */
+.frow { display: flex; flex-direction: column; gap: 5px; }
+.flabel { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.freq { color: var(--blood-2); }
+.finput {
+  font-family: var(--body); font-size: 14px;
+  padding: 9px 12px; border-radius: 9px;
+  border: 1px solid var(--line-2); background: var(--bg-1); color: var(--ink);
+  outline: none; transition: .15s; width: 100%;
+}
+.finput:focus { border-color: rgba(214,171,91,.45); box-shadow: 0 0 0 3px rgba(214,171,91,.08); }
+.finput::placeholder { color: var(--ink-3); }
+.ftarea { resize: vertical; min-height: 80px; line-height: 1.55; }
+.ftarea-sm { min-height: 64px; }
+select.finput { cursor: pointer; }
+.frow-check { flex-direction: row; align-items: center; }
+.frow-check-mid { justify-content: flex-start; padding-top: 20px; }
+.fcheck { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.fcheck input { accent-color: var(--gold-2); width: 15px; height: 15px; cursor: pointer; }
+
+/* ── NotesList shared styles ─────────────────────────────────────────────── */
+.note-actions { display: flex; gap: 6px; margin-top: 6px; }
+.note-edit { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.note-edit-ft { display: flex; justify-content: flex-end; gap: 6px; }
+.note-compose { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 12px; background: var(--bg-3); border-radius: 10px; border: 1px solid var(--line-2); }
+.note-compose-scope { display: flex; gap: 6px; flex-wrap: wrap; }
+.nscope-opt { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: .04em; border: 1px solid var(--line-2); background: var(--bg-2); cursor: pointer; color: var(--ink-3); transition: .15s; }
+.nscope-opt input { display: none; }
+.nscope-opt.on { background: var(--gold); color: #1a1108; border-color: var(--gold); }
+.note-compose-ft { display: flex; justify-content: flex-end; gap: 8px; }
+.btn.xs { padding: 4px 10px; font-size: 11px; border-radius: 7px; }
+
+.qm-sub-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.qm-sub-row .finput { flex: 1; }
+.qm-sub-row .btn.icon { flex: none; padding: 7px; }
+
+.fimg-preview {
+  margin-top: 8px; border-radius: 8px; overflow: hidden;
+  height: 120px; background: var(--bg-3); border: 1px solid var(--line);
+}
+.fimg-preview img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+.fdm-note {
+  padding: 12px 14px; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(176,48,40,.08), transparent), var(--bg-3);
+  border: 1px dashed rgba(200,70,60,.35);
+}
+.fdm-note .flabel { color: #f0b3ad; }
+
+@media (max-width: 760px) {
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal-overlay .modal-box {
+    width: 100%;
+    border-radius: var(--r) var(--r) 0 0;
+    max-height: 92vh;
+  }
+  .modal-body { padding: 14px 16px; gap: 11px; }
+  .modal-hd { padding: 14px 16px 12px; }
+  .modal-ft { padding: 10px 16px 24px; }
+  .fgrid-2 { grid-template-columns: 1fr; gap: 11px; }
+  .fgrid-3 { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fgrid-ab { grid-template-columns: repeat(3, 1fr); }
+  .frow-check-mid { padding-top: 0; }
 }

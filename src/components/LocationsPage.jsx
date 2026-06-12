@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { TREE, ICONS, getLoc } from '../data/locations';
+import LocationModal from './LocationModal';
+import NotesList from './NotesList';
+import { ICONS } from '../data/locations';
+import { useLocations } from '../hooks/useLocations';
 import './LocationsPage.css';
 
 // ---- icon helpers ----
@@ -89,32 +92,7 @@ function PersonCard({ person }) {
 }
 
 // ---- Location detail ----
-function LocationDetail({ loc, onSelect }) {
-  const [noteFilter, setNoteFilter] = useState('all');
-
-  const filters = [
-    { key: 'all', label: 'All' },
-    { key: 'pub', label: 'Public' },
-    { key: 'mine', label: 'Mine' },
-    { key: 'dm', label: 'DM', dmOnly: true },
-  ];
-
-  const noteMap = { pub: 'pub', priv: 'priv', dm: 'dmn' };
-  const tagMap = {
-    pub: ['tag-pub', 'Public'],
-    priv: ['tag-priv', 'Private'],
-    dm: ['tag-dm', 'DM only'],
-  };
-
-  const visibleNotes = loc.notes.filter(n => {
-    if (noteFilter === 'all') return true;
-    if (noteFilter === 'pub') return n.scope === 'pub';
-    if (noteFilter === 'mine') return n.scope === 'priv';
-    if (noteFilter === 'dm') return n.scope === 'dm';
-    return true;
-  });
-
-  const noteCount = loc.notes.length;
+function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile }) {
 
   const visChip = loc.visibility === 'hidden'
     ? <span className="chip sm tag-dm dm-only" style={{ '--d': 'inline-flex' }}>⛓ Hidden record</span>
@@ -124,20 +102,22 @@ function LocationDetail({ loc, onSelect }) {
     <>
       {/* Banner */}
       <div className="banner">
+        {loc.imageUrl
+          ? <img className="banner-img" src={loc.imageUrl} alt={loc.name} />
+          : <div className="banner-hint">{loc.img}</div>
+        }
         <div className="banner-frame" />
-        <div className="banner-hint">{loc.img}</div>
-        <div className="banner-actions dm-only" style={{ '--d': 'block' }}>
-          <button className="btn sm">Replace image</button>
-        </div>
         <div className="banner-label">
           <div>
             <div className="eyebrow">{loc.region}</div>
             <h1>{loc.name}</h1>
           </div>
-          <div className="row gap-s dm-only" style={{ '--d': 'flex' }}>
-            <button className="btn sm">Edit</button>
-            <button className="btn sm blood">Reveal…</button>
-          </div>
+          {isDM && loc.firestore && (
+            <div className="row gap-s dm-only" style={{ '--d': 'flex' }}>
+              <button className="btn sm" onClick={onEdit}>Edit</button>
+              <button className="btn sm blood" onClick={onDelete}>Delete</button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -162,15 +142,17 @@ function LocationDetail({ loc, onSelect }) {
           </div>
 
           {/* Secrets — DM only */}
-          <div className="sec dm-only reveal-frame" style={{ '--d': 'block' }}>
-            <div className="field-secret">
-              <div className="sec-head">
-                <h3 style={{ color: '#f0b3ad' }}>⛓ Secrets & DM Notes</h3>
-                <span className="chip sm tag-dm">DM only field</span>
+          {loc.secret && (
+            <div className="sec dm-only reveal-frame" style={{ '--d': 'block' }}>
+              <div className="field-secret">
+                <div className="sec-head">
+                  <h3 style={{ color: '#f0b3ad' }}>⛓ Secrets & DM Notes</h3>
+                  <span className="chip sm tag-dm">DM only field</span>
+                </div>
+                <div className="prose">{loc.secret}</div>
               </div>
-              <div className="prose">{loc.secret}</div>
             </div>
-          </div>
+          )}
 
           {/* Sub-locations */}
           {loc.subs.length > 0 && (
@@ -186,12 +168,14 @@ function LocationDetail({ loc, onSelect }) {
           )}
 
           {/* Who is here */}
-          <div className="sec">
-            <div className="sec-head"><h3>Who is here</h3></div>
-            <div className="people">
-              {loc.people.map((p, i) => <PersonCard key={i} person={p} />)}
+          {loc.people.length > 0 && (
+            <div className="sec">
+              <div className="sec-head"><h3>Who is here</h3></div>
+              <div className="people">
+                {loc.people.map((p, i) => <PersonCard key={i} person={p} />)}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Quests */}
           <div className="sec">
@@ -214,35 +198,14 @@ function LocationDetail({ loc, onSelect }) {
 
         {/* Notes rail */}
         <aside className="notes">
-          <div className="notes-head">
-            <h3>Notes</h3>
-            <span className="chip sm"><span className="dot-live" /> {noteCount} here</span>
-          </div>
-          <div className="nfilters">
-            {filters.map(f => (
-              <button
-                key={f.key}
-                className={`nfilter${noteFilter === f.key ? ' on' : ''}${f.dmOnly ? ' dm-only' : ''}`}
-                style={f.dmOnly ? { '--d': 'inline' } : undefined}
-                onClick={() => setNoteFilter(f.key)}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          {visibleNotes.map((n, i) => {
-            const [tagCls, tagLabel] = tagMap[n.scope];
-            return (
-              <div key={i} className={`note ${noteMap[n.scope]}`}>
-                <div className="note-head">
-                  <span className={`chip sm ${tagCls}`}>{tagLabel} · {n.who}</span>
-                  <span className="tiny dim">{n.when}</span>
-                </div>
-                <div className="note-body">{n.body}</div>
-              </div>
-            );
-          })}
-          <button className="btn blood nadd">+ Add a note</button>
+          <NotesList
+            entityId={loc.id}
+            entityType="location"
+            entityName={loc.name}
+            user={user}
+            profile={profile}
+            isDM={isDM}
+          />
         </aside>
       </div>
     </>
@@ -254,6 +217,33 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
   const [selectedId, setSelectedId] = useState('blue-water-inn');
   const [collapsedIds, setCollapsedIds] = useState(new Set());
   const [treeOpen, setTreeOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const { mergedTree, getLoc, loading, seeded, addLocation, updateLocation, deleteLocation, seedLocations } = useLocations();
+  const [seeding, setSeeding] = useState(false);
+  const [editModal, setEditModal] = useState(null); // null | { id, loc }
+
+  async function handleSeed() {
+    setSeeding(true);
+    try { await seedLocations(); } finally { setSeeding(false); }
+  }
+
+  function openEdit() {
+    const loc = getLoc(selectedId);
+    setEditModal({ id: selectedId, loc });
+  }
+
+  async function handleEditSave(data) {
+    await updateLocation(editModal.id, data);
+  }
+
+  async function handleDelete() {
+    const loc = getLoc(selectedId);
+    if (!window.confirm(`Delete "${loc.name}"? This cannot be undone.`)) return;
+    const idToDelete = selectedId;
+    setSelectedId('blue-water-inn');
+    await deleteLocation(idToDelete);
+  }
 
   useEffect(() => {
     document.body.classList.toggle('tree-open', treeOpen);
@@ -322,9 +312,25 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
             <aside className="tree" id="tree">
               <div className="tree-head">
                 <h2>Locations</h2>
-                <button className="btn sm dm-only" style={{ '--d': 'inline-flex' }}>+ New</button>
+                {isDM && (
+                  <button
+                    className="btn sm dm-only"
+                    style={{ '--d': 'inline-flex' }}
+                    onClick={() => setModalOpen(true)}
+                  >
+                    + New
+                  </button>
+                )}
               </div>
-              {TREE.map(node => (
+              {!loading && !seeded && isDM && (
+                <div style={{ padding: '16px 12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 10 }}>No locations yet.</p>
+                  <button className="btn sm primary" onClick={handleSeed} disabled={seeding}>
+                    {seeding ? 'Seeding…' : 'Import sample data'}
+                  </button>
+                </div>
+              )}
+              {mergedTree.map(node => (
                 <TreeNode
                   key={node.id}
                   node={node}
@@ -338,10 +344,24 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
 
             {/* Detail panel */}
             <section className="detail">
-              <LocationDetail key={selectedId} loc={loc} onSelect={selectLocation} />
+              <LocationDetail key={selectedId} loc={loc} isDM={isDM} onSelect={selectLocation} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} />
             </section>
           </div>
         </div>
-      </div>
+
+      {modalOpen && (
+        <LocationModal
+          onSave={addLocation}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
+      {editModal && (
+        <LocationModal
+          initial={editModal.loc}
+          onSave={handleEditSave}
+          onClose={() => setEditModal(null)}
+        />
+      )}
+    </div>
   );
 }

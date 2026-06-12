@@ -53,8 +53,8 @@ const BASE = {
     statblock: {
       cr: '15', ac: '16 (natural armor)', hp: '144 (17d8+68)', speed: '30 ft.',
       abilities: [
-        ['STR', '18', '+4'], ['DEX', '18', '+4'], ['CON', '18', '+4'],
-        ['INT', '20', '+5'], ['WIS', '15', '+2'], ['CHA', '18', '+4'],
+        { stat: 'STR', val: '18', mod: '+4' }, { stat: 'DEX', val: '18', mod: '+4' }, { stat: 'CON', val: '18', mod: '+4' },
+        { stat: 'INT', val: '20', mod: '+5' }, { stat: 'WIS', val: '15', mod: '+2' }, { stat: 'CHA', val: '18', mod: '+4' },
       ],
       traits: [
         { n: 'Regeneration', d: "Regains 20 HP at the start of his turn if he has at least 1 HP and isn't in sunlight or running water." },

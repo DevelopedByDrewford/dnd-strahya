@@ -1,6 +1,16 @@
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useActivity } from '../hooks/useActivity';
 import './HomePage.css';
+
+function timeAgo(ts) {
+  if (!ts?.toMillis) return '—';
+  const diff = Date.now() - ts.toMillis();
+  if (diff < 60000)    return 'just now';
+  if (diff < 3600000)  return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
+}
 
 const HubTile = ({ icon, label, count, sub, dm, prep }) => (
   <div className={`tile${prep ? ' prep' : ''}${dm ? ' dm-only reveal-frame' : ''}`} style={dm ? { '--d': 'block' } : undefined}>
@@ -26,7 +36,11 @@ const FeedItem = ({ initials, dmAvatar, children, when }) => (
   </div>
 );
 
+const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
+
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const { activity } = useActivity({ isDM, userId: user?.uid, max: 8 });
+
   return (
     <div className="app">
       <div className="scrim" onClick={onCloseNav} />
@@ -101,11 +115,11 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>}
                   label="Lore" count={23} sub="Histories & omens"
                 />
-                <HubTile
+                {/* <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2l2.5 5 5.5.8-4 3.9.9 5.5L12 20l-4.9 2.2.9-5.5-4-3.9 5.5-.8z"/></svg>}
                   label="DM Prep" count={3} sub="Hidden from players"
                   dm prep
-                />
+                /> */}
               </div>
 
               <div className="card standing">
@@ -128,11 +142,24 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 <h3>Activity</h3>
                 <span className="chip live"><span className="dot-live" /> Live</span>
               </div>
-              <FeedItem initials="G" when="2 minutes ago"><b>Greg</b> added a public note to <b>Strahd</b></FeedItem>
-              <FeedItem initials="T" when="1 hour ago"><b>You</b> updated quest <b>Free the Soul Coins</b></FeedItem>
-              <FeedItem initials="DM" dmAvatar when="just now · party notified"><b>You (DM)</b> revealed <b>Castle Ravenloft</b></FeedItem>
-              <FeedItem initials="M" when="3 hours ago"><b>Marian</b> claimed <b>Potion of Healing ×2</b></FeedItem>
-              <FeedItem initials="T" when="3 hours ago"><b>Tessa</b> joined the session</FeedItem>
+              {activity.length === 0 && (
+                <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>
+                  No activity yet. Notes added to characters, locations, and quests appear here.
+                </div>
+              )}
+              {activity.map(n => (
+                <FeedItem
+                  key={n.id}
+                  initials={(n.who || '?')[0].toUpperCase()}
+                  dmAvatar={n.scope === 'dm'}
+                  when={timeAgo(n.createdAt)}
+                >
+                  <b>{n.who}</b> noted on{' '}
+                  <Link to={TYPE_ROUTE[n.entityType] || '#'} style={{ color: 'var(--gold)' }}>
+                    {n.entityName}
+                  </Link>
+                </FeedItem>
+              ))}
               <Link to="/activity" className="seeall">View all activity →</Link>
             </div>
           </div>

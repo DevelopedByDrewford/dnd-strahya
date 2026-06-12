@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { QI, QUESTS_INITIAL, LOOT } from '../data/quests';
+import QuestModal from './QuestModal';
+import NotesList from './NotesList';
+import { QI, LOOT } from '../data/quests';
+import { useQuests } from '../hooks/useQuests';
 import './QuestsPage.css';
 
 const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
@@ -14,7 +17,7 @@ function pct(q) {
   return Math.round(q.subs.filter(s => s.done).length / q.subs.length * 100);
 }
 
-function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM }) {
+function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew }) {
   const visible = quests.filter(q => {
     if (q.dm && !isDM) return false;
     if (filter === 'Active')    return q.status === 'active';
@@ -27,7 +30,7 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM }) {
     <aside className="qlist">
       <div className="qlhead">
         <h2>Quests</h2>
-        <button className="btn sm" dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' New' }} />
+        {isDM && <button className="btn sm" onClick={onNew} dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' New' }} />}
       </div>
       <div className="qfilters">
         {FILTERS.map(f => (
@@ -66,7 +69,7 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM }) {
   );
 }
 
-function QuestDetail({ quest, isDM, onToggleSub }) {
+function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile }) {
   if (!quest) return <div className="qdetail"><p className="muted">Select a quest.</p></div>;
 
   const doneCount = quest.subs.filter(s => s.done).length;
@@ -93,8 +96,16 @@ function QuestDetail({ quest, isDM, onToggleSub }) {
           {deadlineChip}
           {visChip}
           <span style={{ flex: 1 }} />
-          <button className="btn sm">✎ Edit</button>
-          {isDM && <button className="btn sm">Visibility</button>}
+          {quest.firestore && (
+            <>
+              <button className="btn sm" onClick={onEdit}>✎ Edit</button>
+              {isDM && (
+                <button className="btn sm ghost" onClick={onDelete} style={{ color: 'var(--blood)' }}>
+                  Delete
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -184,6 +195,17 @@ function QuestDetail({ quest, isDM, onToggleSub }) {
               </div>
             ))}
           </div>
+
+          <div className="scard quest-notes">
+            <NotesList
+              entityId={quest.id}
+              entityType="quest"
+              entityName={quest.name}
+              user={user}
+              profile={profile}
+              isDM={isDM}
+            />
+          </div>
         </aside>
       </div>
     </div>
@@ -240,11 +262,12 @@ function LootView({ isDM }) {
 }
 
 export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
-  const [activeTab, setActiveTab]       = useState('quests');
-  const [quests, setQuests]             = useState(QUESTS_INITIAL);
-  const [selectedId, setSelectedId]     = useState('soul-coins');
-  const [filter, setFilter]             = useState('Active');
-  const [qlistOpen, setQlistOpen]       = useState(false);
+  const { quests, addQuest, updateQuest, deleteQuest } = useQuests();
+  const [activeTab, setActiveTab]   = useState('quests');
+  const [selectedId, setSelectedId] = useState('soul-coins');
+  const [filter, setFilter]         = useState('Active');
+  const [qlistOpen, setQlistOpen]   = useState(false);
+  const [modal, setModal]           = useState(null); // null | { mode: 'create' } | { mode: 'edit', quest }
 
   useEffect(() => {
     document.body.classList.toggle('qlist-open', qlistOpen);
@@ -256,17 +279,35 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
     setQlistOpen(false);
   }
 
-  function toggleSub(questId, subIndex) {
-    setQuests(prev => prev.map(q =>
-      q.id === questId
-        ? { ...q, subs: q.subs.map((s, i) => i === subIndex ? { ...s, done: !s.done } : s) }
-        : q
-    ));
+  async function toggleSub(questId, subIndex) {
+    const quest = quests.find(q => q.id === questId);
+    if (!quest) return;
+    const newSubs = quest.subs.map((s, i) => i === subIndex ? { ...s, done: !s.done } : s);
+    if (quest.firestore) {
+      await updateQuest(questId, { subs: newSubs });
+    }
   }
 
   function closeAll() {
     onCloseNav();
     setQlistOpen(false);
+  }
+
+  async function handleSave(data) {
+    if (modal.mode === 'create') {
+      const ref = await addQuest(data);
+      setSelectedId(ref.id);
+    } else {
+      await updateQuest(modal.quest.id, data);
+    }
+  }
+
+  async function handleDelete() {
+    const quest = quests.find(q => q.id === selectedId);
+    if (!quest) return;
+    if (!window.confirm(`Delete "${quest.name}"? This cannot be undone.`)) return;
+    setSelectedId('soul-coins');
+    await deleteQuest(selectedId);
   }
 
   const selectedQuest = quests.find(q => q.id === selectedId) || null;
@@ -310,11 +351,16 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
               filter={filter}
               onFilter={setFilter}
               isDM={isDM}
+              onNew={() => setModal({ mode: 'create' })}
             />
             <QuestDetail
               quest={selectedQuest}
               isDM={isDM}
               onToggleSub={toggleSub}
+              onEdit={() => setModal({ mode: 'edit', quest: selectedQuest })}
+              onDelete={handleDelete}
+              user={user}
+              profile={profile}
             />
           </div>
         </div>
@@ -325,6 +371,13 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
         </div>
       </div>
 
+      {modal && (
+        <QuestModal
+          initial={modal.mode === 'edit' ? modal.quest : null}
+          onSave={handleSave}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   );
 }

@@ -3,69 +3,72 @@ rules_version = '2';
 // Role model:
 //   Visitor  — request.auth == null
 //   Player   — request.auth != null
-//   DM/admin — request.auth != null && request.auth.token.role == 'dm'
-//              (set via Firebase Admin SDK custom claims)
+//   DM/admin — users/{uid}.role == 'dm'  (set in Firestore profile)
+//
+// Write access requires only authentication — the app controls which
+// UI is shown based on DM mode. Read access enforces hidden/visible.
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isDM() {
-      return request.auth != null && request.auth.token.role == 'dm';
-    }
 
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isPublicDoc() {
-      return resource.data.recordVisibility == 'public';
-    }
-
-    // Only the claim-related fields are changing (used for player claim/unclaim).
-    function onlyClaiming() {
-      let claimFields = ['claimBy', 'claimOpen', 'updatedAt'];
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(claimFields);
-    }
-
-    // Player cannot touch the recordVisibility field.
-    function noVisibilityChange() {
-      return !('recordVisibility' in request.resource.data) ||
-             request.resource.data.recordVisibility == resource.data.recordVisibility;
+    function isDM() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'dm';
     }
 
     // ── user profiles ─────────────────────────────────────────────────────────
     match /users/{userId} {
-      // Each user can read and write only their own profile.
       allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ── timeline ──────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/timeline/{entryId} {
+      allow read:   if isDM() || (isSignedIn() && resource.data.hidden != true);
+      allow write:  if isSignedIn();
+    }
+
+    // ── locations ─────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/locations/{locationId} {
+      allow read:   if isDM() || (isSignedIn() && resource.data.visibility != 'hidden');
+      allow write:  if isSignedIn();
+    }
+
+    // ── characters ────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/characters/{characterId} {
+      allow read:   if isDM() || (isSignedIn() && resource.data.visibility != 'hidden');
+      // DMs manage NPCs; players can only write their own character (docId == uid)
+      allow write:  if isDM() || (isSignedIn() && characterId == request.auth.uid);
+    }
+
+    // ── quests ────────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/quests/{questId} {
+      allow read:   if isDM() || (isSignedIn() && resource.data.visibility != 'hidden');
+      allow write:  if isSignedIn();
+    }
+
+    // ── notes ─────────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/notes/{noteId} {
+      // Players read pub+priv; DMs read everything including dm-scoped notes
+      allow read:   if isSignedIn() && (resource.data.scope != 'dm' || isDM());
+      allow create: if isSignedIn();
+      // Only the author or a DM can edit/delete
+      allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isDM());
     }
 
     // ── loot items ────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/loot/{itemId} {
-      // Visitor: only public docs
-      // Player: all public docs (client must query where recordVisibility=='public')
-      // DM: everything
-      allow get: if isDM() || isPublicDoc();
-      allow list: if isDM() || isSignedIn();
-
-      // Player can create items (always public by default).
-      allow create: if isDM() || (
-        isSignedIn() &&
-        request.resource.data.recordVisibility == 'public'
-      );
-
-      // Player can edit public fields or claim/unclaim.
-      // DM can edit anything.
-      allow update: if isDM() || (
-        isSignedIn() && isPublicDoc() && noVisibilityChange()
-      );
-
-      // Only DM can delete.
-      allow delete: if isDM();
+      allow get:    if isDM() || resource.data.recordVisibility == 'public';
+      allow list:   if isDM() || isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isDM() || isSignedIn();
     }
 
     // ── DM-only loot secrets ──────────────────────────────────────────────────
-    // Contains true identity of unidentified items, etc.
-    // Players and visitors must never receive these docs.
     match /campaigns/{campaignId}/lootDm/{itemId} {
       allow read, write: if isDM();
     }

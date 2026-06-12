@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import './ProfileModal.css';
@@ -8,6 +8,8 @@ export default function ProfileModal({ user, profile, onClose, onSignOut, onProf
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const boxRef = useRef(null);
+  const mouseDownOutside = useRef(false);
 
   const initial = (displayName || user.email)[0].toUpperCase();
   const isDM = profile?.role === 'dm';
@@ -32,8 +34,12 @@ export default function ProfileModal({ user, profile, onClose, onSignOut, onProf
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="profile-modal" onClick={e => e.stopPropagation()}>
+    <div
+      className="modal-backdrop"
+      onMouseDown={e => { mouseDownOutside.current = !boxRef.current?.contains(e.target); }}
+      onClick={() => { if (mouseDownOutside.current) onClose(); }}
+    >
+      <div className="profile-modal" ref={boxRef}>
 
         <div className="profile-modal-header">
           <div className="profile-avatar-wrap">

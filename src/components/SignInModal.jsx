@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './SignInModal.css';
 
 export default function SignInModal({ onSignIn, onClose }) {
@@ -6,6 +6,8 @@ export default function SignInModal({ onSignIn, onClose }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const boxRef = useRef(null);
+  const mouseDownOutside = useRef(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -22,8 +24,12 @@ export default function SignInModal({ onSignIn, onClose }) {
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-box" onClick={e => e.stopPropagation()}>
+    <div
+      className="modal-backdrop"
+      onMouseDown={e => { mouseDownOutside.current = !boxRef.current?.contains(e.target); }}
+      onClick={() => { if (mouseDownOutside.current) onClose(); }}
+    >
+      <div className="modal-box" ref={boxRef}>
         <div className="modal-sigil">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" strokeWidth="1.4">
             <path d="M5 3h11l3 3v15H5z"/><path d="M16 3v3h3"/>

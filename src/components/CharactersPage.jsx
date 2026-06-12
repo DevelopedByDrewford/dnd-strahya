@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { ROSTER, STATUS_ICONS, getChar } from '../data/characters';
+import CharacterModal from './CharacterModal';
+import NotesList from './NotesList';
+import { STATUS_ICONS } from '../data/characters';
+import { useCharacters } from '../hooks/useCharacters';
 import './CharactersPage.css';
 
 const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';
@@ -11,19 +14,10 @@ const SCROLL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const FILTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M6 12h12M9 18h6"/></svg>';
 const PLUS_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
 
-const NOTE_LABELS = { pub: 'Public', priv: 'Private', dm: 'DM Only' };
 
 // create variable 'hello' 
 
-function CharacterDetail({ id, isDM }) {
-  const ch = getChar(id);
-  const [noteFilter, setNoteFilter] = useState('all');
-
-  const visibleNotes = ch.notes.filter(n => {
-    if (n.scope === 'dm' && !isDM) return false;
-    if (noteFilter === 'all') return true;
-    return n.scope === noteFilter;
-  });
+function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile }) {
 
   return (
     <div className="char-detail">
@@ -46,8 +40,12 @@ function CharacterDetail({ id, isDM }) {
             ))}
           </div>
           <div className="char-actions">
-            <button className="btn sm" dangerouslySetInnerHTML={{ __html: EDIT_SVG + ' Edit' }} />
-            <button className="btn sm" dangerouslySetInnerHTML={{ __html: SCROLL_SVG + ' Session Log' }} />
+            {isDM && ch.firestore && (
+              <>
+                <button className="btn sm" onClick={onEdit} dangerouslySetInnerHTML={{ __html: EDIT_SVG + ' Edit' }} />
+                <button className="btn sm ghost" onClick={onDelete} style={{ color: 'var(--blood)' }} dangerouslySetInnerHTML={{ __html: SCROLL_SVG + ' Delete' }} />
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -92,23 +90,23 @@ function CharacterDetail({ id, isDM }) {
         </div>
       )}
 
-      {/* Stat Block — DM only */}
+      {/* Stat Block */}
       {ch.statblock && (
-        <div className="char-sec reveal-frame dm-only">
+        <div className={`char-sec${ch.group !== 'The Party' ? ' reveal-frame dm-only' : ''}`}>
           <div className="char-sec-head"><h3>Stat Block</h3></div>
           <div className="char-sec-body">
             <div className="sblock-meta">
-              <span><b>CR</b> {ch.statblock.cr}</span>
+              {ch.statblock.cr != null && <span><b>CR</b> {ch.statblock.cr}</span>}
               <span><b>AC</b> {ch.statblock.ac}</span>
               <span><b>HP</b> {ch.statblock.hp}</span>
               <span><b>Speed</b> {ch.statblock.speed}</span>
             </div>
             <div className="sblock-abilities">
-              {ch.statblock.abilities.map(([label, val, mod]) => (
-                <div key={label} className="sab">
-                  <div className="sal">{label}</div>
-                  <div className="sav">{val}</div>
-                  <div className="sam">{mod}</div>
+              {ch.statblock.abilities.map(a => (
+                <div key={a.stat} className="sab">
+                  <div className="sal">{a.stat}</div>
+                  <div className="sav">{a.val}</div>
+                  <div className="sam">{a.mod}</div>
                 </div>
               ))}
             </div>
@@ -149,33 +147,15 @@ function CharacterDetail({ id, isDM }) {
       )}
 
       {/* Notes Rail */}
-      <div className="char-sec">
-        <div className="char-sec-head">
-          <h3>Notes</h3>
-          <span dangerouslySetInnerHTML={{ __html: FILTER_SVG }} style={{ width: 16, height: 16, color: 'var(--ink-3)' }} />
-        </div>
-        <div className="char-sec-body">
-          <div className="nfilters">
-            {['all', 'pub', 'priv', ...(isDM ? ['dm'] : [])].map(f => (
-              <button key={f} className={`nfilter${noteFilter === f ? ' on' : ''}`} onClick={() => setNoteFilter(f)}>
-                {f === 'all' ? 'All' : NOTE_LABELS[f]}
-              </button>
-            ))}
-          </div>
-          {visibleNotes.map((n, i) => (
-            <div key={i} className={`note ${n.scope}`}>
-              <div className="note-head">
-                <span className={`chip sm tag-${n.scope}`}>{NOTE_LABELS[n.scope]}</span>
-                <span className="dim tiny">{n.who} · {n.when}</span>
-              </div>
-              <div className="note-body">{n.body}</div>
-            </div>
-          ))}
-          <button className="btn sm ghost nadd">
-            <span dangerouslySetInnerHTML={{ __html: PLUS_SVG }} />
-            Add note
-          </button>
-        </div>
+      <div className="char-sec char-notes-rail">
+        <NotesList
+          entityId={ch.id}
+          entityType="character"
+          entityName={ch.name}
+          user={user}
+          profile={profile}
+          isDM={isDM}
+        />
       </div>
 
     </div>
@@ -183,9 +163,12 @@ function CharacterDetail({ id, isDM }) {
 }
 
 export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const { mergedRoster, getChar, loading, seeded, addCharacter, updateCharacter, deleteCharacter, seedCharacters } = useCharacters();
   const [selectedId, setSelectedId] = useState('strahd');
   const [rosterOpen, setRosterOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [modal, setModal] = useState(null); // null | { mode: 'create' } | { mode: 'edit', id, char }
+  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     document.body.classList.toggle('roster-open', rosterOpen);
@@ -202,8 +185,38 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
     setRosterOpen(false);
   }
 
+  async function handleSeed() {
+    setSeeding(true);
+    try { await seedCharacters(); } finally { setSeeding(false); }
+  }
+
+  function openCreate() {
+    setModal({ mode: 'create' });
+  }
+
+  function openEdit() {
+    const ch = getChar(selectedId);
+    setModal({ mode: 'edit', id: selectedId, char: ch });
+  }
+
+  async function handleSave(data) {
+    if (modal.mode === 'create') {
+      const ref = await addCharacter(data);
+      setSelectedId(ref.id);
+    } else {
+      await updateCharacter(modal.id, data);
+    }
+  }
+
+  async function handleDelete() {
+    const ch = getChar(selectedId);
+    if (!window.confirm(`Delete "${ch.name}"? This cannot be undone.`)) return;
+    setSelectedId('strahd');
+    await deleteCharacter(selectedId);
+  }
+
   const q = query.toLowerCase();
-  const filteredRoster = ROSTER.map(grp => ({
+  const filteredRoster = mergedRoster.map(grp => ({
     ...grp,
     items: grp.items.filter(it =>
       (!grp.dm || isDM) &&
@@ -254,7 +267,18 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
                   onChange={e => setQuery(e.target.value)}
                 />
               </div>
+              {isDM && (
+                <button className="btn sm ghost rnadd" onClick={openCreate} dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' New' }} />
+              )}
             </div>
+            {!loading && !seeded && isDM && (
+              <div style={{ padding: '16px 12px', textAlign: 'center' }}>
+                <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 10 }}>No characters yet.</p>
+                <button className="btn sm primary" onClick={handleSeed} disabled={seeding}>
+                  {seeding ? 'Seeding…' : 'Import sample data'}
+                </button>
+              </div>
+            )}
             <div className="roster-groups">
               {filteredRoster.map(grp => (
                 <div key={grp.grp} className={grp.dm ? 'dm-only' : undefined}>
@@ -284,11 +308,20 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
           </aside>
 
           {/* Character detail */}
-          <CharacterDetail key={selectedId} id={selectedId} isDM={isDM} />
+          {getChar(selectedId) && (
+            <CharacterDetail key={selectedId} ch={getChar(selectedId)} isDM={isDM} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} />
+          )}
 
         </div>
       </div>
 
+      {modal && (
+        <CharacterModal
+          initial={modal.mode === 'edit' ? modal.char : null}
+          onSave={handleSave}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   );
 }

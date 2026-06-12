@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { ACTIVITY, PRESENCE, REC_I, ACT_I, REC_ROUTES } from '../data/activity';
+import { PRESENCE, REC_I, ACT_I, REC_ROUTES } from '../data/activity';
+import { useActivity } from '../hooks/useActivity';
 import './ActivityPage.css';
 
 const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
@@ -18,22 +19,43 @@ const FILTERS = [
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-function initials(name) {
+function initials(name = '?') {
   return name.replace(/\(.*\)/, '').trim()[0] || '?';
 }
 
-function groupByDay(items) {
+function timeAgo(ts) {
+  if (!ts?.toMillis) return '—';
+  const diff = Date.now() - ts.toMillis();
+  if (diff < 60000)    return 'just now';
+  if (diff < 3600000)  return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+  return new Date(ts.toMillis()).toLocaleDateString();
+}
+
+function dayLabel(ts) {
+  if (!ts?.toMillis) return 'Unknown';
+  const d = new Date(ts.toMillis());
+  const today = new Date();
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'Today';
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function groupByDay(notes) {
   const groups = [];
   const seen = {};
-  for (const item of items) {
-    if (!seen[item.day]) {
-      seen[item.day] = [];
-      groups.push([item.day, seen[item.day]]);
-    }
-    seen[item.day].push(item);
+  for (const n of notes) {
+    const key = dayLabel(n.createdAt);
+    if (!seen[key]) { seen[key] = []; groups.push([key, seen[key]]); }
+    seen[key].push(n);
   }
   return groups;
 }
+
+const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
+const SCOPE_LABEL = { pub: 'public', priv: 'private', dm: 'DM' };
 
 // ── sub-components ────────────────────────────────────────────────────────────
 
@@ -78,55 +100,55 @@ function ScopeTag({ scope }) {
   return <span className={`act-sc ${scope}`}>{label}</span>;
 }
 
-function ActivityItem({ item }) {
-  const isDmItem = !!item.dm;
+function NoteActivityItem({ note }) {
+  const isDmNote = note.scope === 'dm';
+  const route = TYPE_ROUTE[note.entityType] || '#';
   return (
     <div
-      className={`act-item${isDmItem ? ' dm-only reveal-frame' : ''}`}
-      style={isDmItem ? { '--d': 'flex' } : undefined}
+      className={`act-item${isDmNote ? ' dm-only reveal-frame' : ''}`}
+      style={isDmNote ? { '--d': 'flex' } : undefined}
     >
-      <span
-        className={`act-verb${isDmItem ? ' dm-verb' : ''}`}
-        dangerouslySetInnerHTML={{ __html: ACT_I[item.act] || ACT_I.edit }}
-      />
+      <span className={`act-verb${isDmNote ? ' dm-verb' : ''}`}
+        dangerouslySetInnerHTML={{ __html: ACT_I.note || ACT_I.edit }} />
       <div className="act-ibody">
         <div className="act-iline">
-          <span className="av" style={{ width: 24, height: 24, fontSize: 11 }}>
-            {initials(item.who)}
-          </span>
-          <span className="act-who">{item.who}</span>
-          <span className="act-txt">{item.text}</span>
-          {item.rec && <RecordLink name={item.rec} type={item.recType} />}
-          {item.recSecond && (
-            <>
-              <span className="dim">·</span>
-              <RecordLink name={item.recSecond} type={item.recType} secondary />
-            </>
-          )}
-          <ScopeTag scope={item.scope} />
+          <span className="av" style={{ width: 24, height: 24, fontSize: 11 }}>{initials(note.who)}</span>
+          <span className="act-who">{note.who}</span>
+          <span className="act-txt">added a</span>
+          <ScopeTag scope={note.scope} />
+          <span className="act-txt">note on</span>
+          <Link className="act-rlink" to={route}>
+            <span className="act-ri" dangerouslySetInnerHTML={{ __html: REC_I[note.entityType] || REC_I.note || '' }} />
+            {note.entityName}
+          </Link>
         </div>
-        <div className="act-imeta">
-          {item.when}
-          {item.extra && <> · <span className="extra">{item.extra}</span></>}
-        </div>
+        <div className="act-imeta">{timeAgo(note.createdAt)}</div>
+        {note.body && <div className="act-preview">"{note.body.slice(0, 120)}{note.body.length > 120 ? '…' : ''}"</div>}
       </div>
     </div>
   );
 }
 
-function ActivityStream({ items }) {
-  if (!items.length) {
-    return <div className="act-empty">No activity matches this filter.</div>;
+function ActivityStream({ notes, filter, userId }) {
+  const visible = notes.filter(n => {
+    if (filter === 'note')   return true;
+    if (filter === 'mine')   return n.authorId === userId;
+    if (filter === 'quest')  return n.entityType === 'quest';
+    if (filter === 'char')   return n.entityType === 'character';
+    return true;
+  });
+
+  if (!visible.length) {
+    return <div className="act-empty">No activity yet. Notes added to locations, characters, and quests will appear here.</div>;
   }
-  const groups = groupByDay(items);
+
+  const groups = groupByDay(visible);
   return (
     <div className="act-stream">
-      {groups.map(([day, dayItems]) => (
+      {groups.map(([day, dayNotes]) => (
         <div key={day} className="act-daygrp">
           <div className="act-dh">{day}</div>
-          {dayItems.map(item => (
-            <ActivityItem key={item.id} item={item} />
-          ))}
+          {dayNotes.map(n => <NoteActivityItem key={n.id} note={n} />)}
         </div>
       ))}
     </div>
@@ -137,17 +159,7 @@ function ActivityStream({ items }) {
 
 export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [activeCat, setActiveCat] = useState('all');
-
-  const visibleItems = useMemo(() => {
-    return ACTIVITY.filter(a => {
-      if (a.dm && !isDM) return false;
-      if (activeCat === 'all')  return true;
-      if (activeCat === 'mine') return a.who === 'You' || a.who === 'You (DM)' || a.who === 'Tessa';
-      return a.cat === activeCat;
-    });
-  }, [activeCat, isDM]);
-
-  const allCount = ACTIVITY.filter(a => !a.dm || isDM).length;
+  const { activity, loading } = useActivity({ isDM, userId: user?.uid });
 
   return (
     <div className="act-app">
@@ -192,18 +204,16 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
                 >
                   <span dangerouslySetInnerHTML={{ __html: f.icon }} />
                   {f.label}
-                  {f.key === 'all' && <span className="c">{allCount}</span>}
+                  {f.key === 'all' && <span className="c">{activity.length}</span>}
                 </button>
               ))}
             </div>
 
             {/* Stream */}
-            <ActivityStream items={visibleItems} />
-
-            {/* Load more */}
-            <div className="act-loadmore">
-              <button className="btn ghost">Load earlier activity</button>
-            </div>
+            {loading
+              ? <div className="act-empty">Loading…</div>
+              : <ActivityStream notes={activity} filter={activeCat} userId={user?.uid} />
+            }
           </div>
         </div>
       </div>

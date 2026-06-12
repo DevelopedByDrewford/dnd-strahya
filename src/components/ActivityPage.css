@@ -140,6 +140,7 @@
 
 /* empty state */
 .act-empty { padding: 30px 4px; text-align: center; font-size: 12.5px; color: var(--ink-3); }
+.act-preview { margin-top: 6px; font-size: 12px; color: var(--ink-3); font-style: italic; line-height: 1.5; }
 
 /* ---- responsive ---- */
 @media (max-width: 760px) {
