@@ -114,16 +114,17 @@ function NoteActivityItem({ note }) {
         <div className="act-iline">
           <span className="av" style={{ width: 24, height: 24, fontSize: 11 }}>{initials(note.who)}</span>
           <span className="act-who">{note.who}</span>
-          <span className="act-txt">added a</span>
-          <ScopeTag scope={note.scope} />
-          <span className="act-txt">note on</span>
+          <span className="act-txt">noted on</span>
           <Link className="act-rlink" to={route}>
             <span className="act-ri" dangerouslySetInnerHTML={{ __html: REC_I[note.entityType] || REC_I.note || '' }} />
             {note.entityName}
           </Link>
+          <ScopeTag scope={note.scope} />
         </div>
         <div className="act-imeta">{timeAgo(note.createdAt)}</div>
-        {note.body && <div className="act-preview">"{note.body.slice(0, 120)}{note.body.length > 120 ? '…' : ''}"</div>}
+        {note.body && note.scope !== 'priv' && (
+          <div className="act-preview">"{note.body.slice(0, 120)}{note.body.length > 120 ? '…' : ''}"</div>
+        )}
       </div>
     </div>
   );

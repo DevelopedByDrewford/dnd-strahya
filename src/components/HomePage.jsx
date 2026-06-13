@@ -154,7 +154,10 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                   dmAvatar={n.scope === 'dm'}
                   when={timeAgo(n.createdAt)}
                 >
-                  <b>{n.who}</b> noted on{' '}
+                  <b>{n.who}</b>{' '}
+                  {n.scope === 'priv' && <span className="chip xs tag-priv">private</span>}
+                  {n.scope === 'dm'   && <span className="chip xs tag-dm">DM</span>}
+                  {' '}noted on{' '}
                   <Link to={TYPE_ROUTE[n.entityType] || '#'} style={{ color: 'var(--gold)' }}>
                     {n.entityName}
                   </Link>

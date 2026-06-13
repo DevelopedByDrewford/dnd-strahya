@@ -130,6 +130,7 @@ h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; margin: 0; lette
 }
 .chip svg { width: 13px; height: 13px; }
 .chip.sm { font-size: 11px; padding: 3px 9px; }
+.chip.xs { font-size: 10px; padding: 2px 6px; }
 .chip.gold { color: var(--gold-2); border-color: rgba(214, 171, 91, .4); background: rgba(214, 171, 91, .08); }
 .chip.blood { color: #f0b3ad; border-color: rgba(200, 70, 60, .45); background: rgba(176, 48, 40, .12); }
 .chip.live { color: var(--live); border-color: rgba(127, 160, 95, .4); background: rgba(127, 160, 95, .1); }

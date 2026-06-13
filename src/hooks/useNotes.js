@@ -24,7 +24,7 @@ export function useNotes(entityId, { isDM = false, userId = null } = {}) {
 
     return onSnapshot(q,
       snap => { setNotes(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLoading(false); },
-      () => setLoading(false),
+      err => { console.error('[useNotes]', err); setLoading(false); },
     );
   }, [entityId, isDM, userId]);
 

@@ -17,7 +17,7 @@ export function useActivity({ isDM = false, userId = null, max = 40 } = {}) {
 
     return onSnapshot(q,
       snap => { setActivity(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLoading(false); },
-      () => setLoading(false),
+      err => { console.error('[useActivity]', err); setLoading(false); },
     );
   }, [isDM, userId, max]);
 
