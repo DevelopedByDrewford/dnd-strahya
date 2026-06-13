@@ -9,20 +9,6 @@
 
 .char-main { min-width: 0; }
 
-/* ---- topbar ---- */
-.char-topbar {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(180deg, rgba(16,12,11,.92), rgba(16,12,11,.7));
-  border-bottom: 1px solid var(--line);
-  padding: 13px 30px;
-  display: flex; align-items: center; gap: 12px;
-}
-
-.char-topbar .char-crumb { font-size: 13px; color: var(--ink-3); flex: 1; }
-.char-topbar .char-crumb a { color: var(--gold); }
-.char-topbar .char-crumb a:hover { color: var(--gold-2); }
-.char-topbar .char-crumb .sep { margin: 0 6px; }
 
 .rosterToggle {
   display: none;
@@ -243,7 +229,7 @@
   .char-app { grid-template-columns: 1fr; }
   .hamburger { display: inline-flex; }
   .char-detail { padding: 18px; }
-  .char-topbar { padding: 11px 16px; }
+
   .char-facts { grid-template-columns: repeat(2, 1fr); }
   .sblock-abilities { grid-template-columns: repeat(3, 1fr); }
   .char-hero { gap: 14px; }

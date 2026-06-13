@@ -21,10 +21,12 @@ function App() {
   const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
-    const dm = profile?.role === 'dm';
-    setIsDM(dm);
-    document.body.classList.toggle('dm', dm);
+    setIsDM(profile?.role === 'dm');
   }, [profile]);
+
+  useEffect(() => {
+    document.body.classList.toggle('dm', isDM);
+  }, [isDM]);
 
   useEffect(() => {
     document.body.classList.toggle('nav-open', navOpen);

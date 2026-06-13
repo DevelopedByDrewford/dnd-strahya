@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import MyCharacterModal from '../components/MyCharacterModal';
 import SignInRequired from '../components/SignInRequired';
 import { useMyCharacter } from '../hooks/useMyCharacter';
 import ImageLightbox from '../components/ImageLightbox';
 import './MyCharacterPage.css';
 
-const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
 const EDIT_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M13 5l4 4"/></svg>';
 const STAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l2 5h5l-4 4 1.5 6L12 20 7.5 22 9 16 5 12h5z"/></svg>';
 const USER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';
@@ -57,7 +58,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
   if (!user) {
     return (
       <SignInRequired
-        {...{ isDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }}
+        {...{ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }}
         breadcrumb="My Character"
         message="Sign in to create and manage your character."
       />
@@ -70,12 +71,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
       <div className="mc-app">
         <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
         <div className="mc-main">
-          <div className="mc-topbar">
-            <div className="mc-crumb">
-              <button className="hamburger btn sm icon" onClick={onToggleNav} dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
-              <span>You › <b>My Character</b></span>
-            </div>
-          </div>
+          <Topbar onToggleNav={onToggleNav} isDM={isDM} onToggleDM={onToggleDM} profile={profile} crumb={<>You › <b>My Character</b></>} />
           <div className="mc-empty"><p style={{ color: 'var(--ink-3)' }}>Loading…</p></div>
         </div>
       </div>
@@ -88,12 +84,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
       <div className="mc-app">
         <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
         <div className="mc-main">
-          <div className="mc-topbar">
-            <div className="mc-crumb">
-              <button className="hamburger btn sm icon" onClick={onToggleNav} dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
-              <span>You › <b>My Character</b></span>
-            </div>
-          </div>
+          <Topbar onToggleNav={onToggleNav} isDM={isDM} onToggleDM={onToggleDM} profile={profile} crumb={<>You › <b>My Character</b></>} />
           <div className="mc-empty">
             <div dangerouslySetInnerHTML={{ __html: USER_SVG }} />
             <h2>No character yet</h2>
@@ -124,18 +115,19 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="mc-main">
-        <div className="mc-topbar">
-          <div className="mc-crumb">
-            <button className="hamburger btn sm icon" onClick={onToggleNav} dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
-            <span>You › <b>My Character</b></span>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <Topbar
+          onToggleNav={onToggleNav}
+          isDM={isDM}
+          onToggleDM={onToggleDM}
+          profile={profile}
+          crumb={<>You › <b>My Character</b></>}
+          rightExtra={<>
             <button className="editbtn" onClick={() => setModal(true)}
               dangerouslySetInnerHTML={{ __html: EDIT_SVG + ' Edit sheet' }} />
             <button className="btn sm ghost" style={{ color: 'var(--blood)' }}
               onClick={() => setConfirmDelete(true)}>Delete</button>
-          </div>
-        </div>
+          </>}
+        />
 
         <div className="mc-wrap">
           {/* Identity hero */}

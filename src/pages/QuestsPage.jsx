@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import QuestModal from '../components/QuestModal';
 import NotesList from '../components/NotesList';
-import { QI, LOOT } from '../data/quests';
+import { QI } from '../data/quests';
 import { useQuests } from '../hooks/useQuests';
 import './QuestsPage.css';
 
-const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
 const QLIST_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>';
 const PLUS_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
 
@@ -50,7 +51,8 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew
         {visible.map(q => (
           <div
             key={q.id}
-            className={`qcard${q.status === 'completed' ? ' done' : ''}${selectedId === q.id ? ' sel' : ''}${q.dm ? ' dm-only' : ''}`}
+            className={`qcard${q.status === 'completed' ? ' done' : ''}${selectedId === q.id ? ' sel' : ''}${q.dm ? ' dm-only qcard-hidden' : ''}`}
+            style={q.dm ? { '--d': 'block' } : undefined}
             onClick={() => onSelect(q.id)}
           >
             <div className="qt">
@@ -61,9 +63,10 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew
                   {q.byYou
                     ? <span className="chip sm" style={{ color: 'var(--live)', borderColor: 'rgba(127,160,95,.4)' }}>you</span>
                     : q.by === 'DM'
-                      ? <span className="chip sm tag-dm dm-only" style={{ '--d': 'inline-flex' }}>DM</span>
+                      ? <span className="chip sm tag-dm">DM</span>
                       : <span className="chip sm">{q.by}</span>
                   }
+                  {q.dm && <span className="chip sm tag-dm">⛓ Hidden</span>}
                 </div>
               </div>
             </div>
@@ -149,6 +152,18 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
               </div>
             </div>
           )}
+
+          {/* Notes */}
+          <div className="q-sec quest-notes-section">
+            <NotesList
+              entityId={quest.id}
+              entityType="quest"
+              entityName={quest.name}
+              user={user}
+              profile={profile}
+              isDM={isDM}
+            />
+          </div>
         </div>
 
         {/* Right side rail */}
@@ -190,78 +205,18 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
               </div>
             ))}
           </div>
-
-          <div className="scard quest-notes">
-            <NotesList
-              entityId={quest.id}
-              entityType="quest"
-              entityName={quest.name}
-              user={user}
-              profile={profile}
-              isDM={isDM}
-            />
-          </div>
         </aside>
       </div>
     </div>
   );
 }
 
-function LootView({ isDM }) {
-  return (
-    <div className="lootwrap">
-      <div className="loothead">
-        <div>
-          <div className="eyebrow">Shared between the party</div>
-          <h1>The Pile</h1>
-        </div>
-        <div className="purse">
-          <div className="purse-coin"><b>1,204</b><span>gp</span></div>
-          <div className="purse-coin"><b>18</b><span>items</span></div>
-          <button className="btn sm" dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' Add item' }} />
-        </div>
-      </div>
-
-      <div className="loottable">
-        {/* Header */}
-        <div className="lrow lhead">
-          <span />
-          <span>Item</span>
-          <span className="lhfound">Found at</span>
-          <span className="lhclaim">Claimed by</span>
-          <span className="lhval">Value</span>
-        </div>
-        {/* Rows */}
-        {LOOT.map((it, i) => (
-          <div key={i} className="lrow">
-            <span className="lthumb" dangerouslySetInnerHTML={{ __html: QI[it.i] || QI.coin }} />
-            <span className="litem">
-              <div>
-                <div className="lnm">{it.name}</div>
-                <div className="lsub">{it.sub}</div>
-                {it.dmTrue && (
-                  <div className="lsub dm-secret dm-only" style={{ '--d': 'block' }}>⛓ {it.dmTrue}</div>
-                )}
-              </div>
-            </span>
-            <span className="lfound tiny muted">{it.found}</span>
-            <span className="lclaim-col">
-              <span className={`lclaim-badge${it.claimOpen ? ' open' : ''}`}>{it.claim}</span>
-            </span>
-            <span className="lval-col lval">{it.val}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { quests, loading, seeded, addQuest, updateQuest, deleteQuest, seedQuests } = useQuests({ userId: user?.uid, isDM });
   const [seeding, setSeeding] = useState(false);
-  const [activeTab, setActiveTab]   = useState('quests');
-  const [selectedId, setSelectedId] = useState('soul-coins');
+  const [selectedId, setSelectedId] = useState(searchParams.get('id') || 'soul-coins');
   const [filter, setFilter]         = useState('Active');
   const [qlistOpen, setQlistOpen]   = useState(false);
   const [modal, setModal]           = useState(searchParams.get('new') === 'true' ? { mode: 'create' } : null);
@@ -270,6 +225,11 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
     if (searchParams.get('new') !== 'true') return;
     setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) setSelectedId(id);
+  }, [searchParams]);
 
   useEffect(() => {
     document.body.classList.toggle('qlist-open', qlistOpen);
@@ -283,6 +243,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
 
   function selectQuest(id) {
     setSelectedId(id);
+    setSearchParams({ id }, { replace: true });
     setQlistOpen(false);
   }
 
@@ -303,7 +264,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
   async function handleSave(data) {
     if (modal.mode === 'create') {
       const ref = await addQuest(data);
-      setSelectedId(ref.id);
+      selectQuest(ref.id);
     } else {
       await updateQuest(modal.quest.id, data);
     }
@@ -313,7 +274,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
     const quest = quests.find(q => q.id === selectedId);
     if (!quest) return;
     if (!window.confirm(`Delete "${quest.name}"? This cannot be undone.`)) return;
-    setSelectedId('soul-coins');
+    selectQuest('soul-coins');
     await deleteQuest(selectedId);
   }
 
@@ -325,63 +286,42 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="q-main">
-        <div className="q-topbar">
-          <div className="q-left">
-            <button className="hamburger btn sm icon" onClick={onToggleNav}
-              dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
-            {activeTab === 'quests' && (
-              <button className="qlistToggle" onClick={() => setQlistOpen(o => !o)}
-                dangerouslySetInnerHTML={{ __html: QLIST_SVG }} />
-            )}
-            <div className="q-tabs">
-              <div className={`q-tab${activeTab === 'quests' ? ' on' : ''}`} onClick={() => setActiveTab('quests')}>
-                Quest Board
-              </div>
-              <div className={`q-tab${activeTab === 'loot' ? ' on' : ''}`} onClick={() => setActiveTab('loot')}>
-                Party Loot
-              </div>
-            </div>
-          </div>
-          {profile?.role === 'dm' && (
-            <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </button>
-          )}
-        </div>
+        <Topbar
+          onToggleNav={onToggleNav}
+          isDM={isDM}
+          onToggleDM={onToggleDM}
+          profile={profile}
+          leftExtra={
+            <button className="qlistToggle" onClick={() => setQlistOpen(o => !o)}
+              dangerouslySetInnerHTML={{ __html: QLIST_SVG }} />
+          }
+          crumb={<>World › <b>Quest</b></>}
+        />
 
-        {/* Quests view */}
-        <div className={`q-view${activeTab === 'quests' ? ' on' : ''}`}>
-          <div className="qlayout">
-            <QuestList
-              quests={quests}
-              selectedId={selectedId}
-              onSelect={selectQuest}
-              filter={filter}
-              onFilter={setFilter}
-              isDM={isDM}
-              onNew={() => setModal({ mode: 'create' })}
-              onSeed={handleSeed}
-              seeding={seeding}
-              seeded={seeded}
-              loading={loading}
-              user={user}
-            />
-            <QuestDetail
-              quest={selectedQuest}
-              isDM={isDM}
-              onToggleSub={toggleSub}
-              onEdit={() => setModal({ mode: 'edit', quest: selectedQuest })}
-              onDelete={handleDelete}
-              user={user}
-              profile={profile}
-            />
-          </div>
-        </div>
-
-        {/* Loot view */}
-        <div className={`q-view${activeTab === 'loot' ? ' on' : ''}`}>
-          <LootView isDM={isDM} />
+        <div className="qlayout">
+          <QuestList
+            quests={quests}
+            selectedId={selectedId}
+            onSelect={selectQuest}
+            filter={filter}
+            onFilter={setFilter}
+            isDM={isDM}
+            onNew={() => setModal({ mode: 'create' })}
+            onSeed={handleSeed}
+            seeding={seeding}
+            seeded={seeded}
+            loading={loading}
+            user={user}
+          />
+          <QuestDetail
+            quest={selectedQuest}
+            isDM={isDM}
+            onToggleSub={toggleSub}
+            onEdit={() => setModal({ mode: 'edit', quest: selectedQuest })}
+            onDelete={handleDelete}
+            user={user}
+            profile={profile}
+          />
         </div>
       </div>
 

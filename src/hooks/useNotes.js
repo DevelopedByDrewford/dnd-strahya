@@ -25,7 +25,14 @@ export function useNotes(entityId, { isDM = false, userId = null } = {}) {
     );
 
     return onSnapshot(q,
-      snap => { setNotes(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLoading(false); },
+      snap => {
+        let fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (!isDM && userId) {
+          fetched = fetched.filter(n => n.scope !== 'priv' || n.authorId === userId);
+        }
+        setNotes(fetched);
+        setLoading(false);
+      },
       err => { console.error('[useNotes]', err); setLoading(false); },
     );
   }, [entityId, isDM, userId]);

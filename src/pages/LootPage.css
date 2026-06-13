@@ -9,15 +9,6 @@
 
 .lt-main { min-width: 0; }
 
-/* ---- topbar ---- */
-.lt-topbar {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(180deg, rgba(16, 12, 11, .92), rgba(16, 12, 11, .7));
-  border-bottom: 1px solid var(--line);
-  padding: 13px 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-}
 
 /* ---- content wrapper ---- */
 .lt-wrap { padding: 26px 26px 70px; max-width: 1060px; }
@@ -170,7 +161,7 @@
   .lt-app { grid-template-columns: 1fr; }
   .hamburger { display: inline-flex; }
   .lt-wrap { padding: 18px 16px 60px; }
-  .lt-topbar { padding: 11px 14px; }
+
   .lt-row { grid-template-columns: 38px 1fr; }
   .lt-head-row { grid-template-columns: 38px 1fr; }
   .lt-claim-col, .lt-hclaim, .lt-val, .lt-hval { display: none; }

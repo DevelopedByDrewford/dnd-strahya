@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import CharacterModal from '../components/CharacterModal';
 import NotesList from '../components/NotesList';
 import { STATUS_ICONS } from '../data/characters';
@@ -9,7 +10,7 @@ import ImageLightbox from '../components/ImageLightbox';
 import './CharactersPage.css';
 
 const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';
-const MENU_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
 const EDIT_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2 2 0 013 3L12 15l-4 1 1-4z"/></svg>';
 const SCROLL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 21h12M8 21a3 3 0 010-6h12v4.5A2.5 2.5 0 0117.5 22H8z"/><path d="M8 3h12v12H8z"/></svg>';
 const PLUS_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
@@ -175,7 +176,7 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile, onImageCli
 export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { mergedRoster, getChar, loading, seeded, addCharacter, updateCharacter, deleteCharacter, seedCharacters } = useCharacters({ isDM });
-  const [selectedId, setSelectedId] = useState('strahd');
+  const [selectedId, setSelectedId] = useState(searchParams.get('id') || 'strahd');
   const [rosterOpen, setRosterOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [modal, setModal] = useState(searchParams.get('new') === 'true' ? { mode: 'create' } : null);
@@ -188,12 +189,18 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) setSelectedId(id);
+  }, [searchParams]);
+
+  useEffect(() => {
     document.body.classList.toggle('roster-open', rosterOpen);
     return () => document.body.classList.remove('roster-open');
   }, [rosterOpen]);
 
   function selectChar(id) {
     setSelectedId(id);
+    setSearchParams({ id }, { replace: true });
     setRosterOpen(false);
   }
 
@@ -219,7 +226,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
   async function handleSave(data) {
     if (modal.mode === 'create') {
       const ref = await addCharacter(data);
-      setSelectedId(ref.id);
+      selectChar(ref.id);
     } else {
       await updateCharacter(modal.id, data);
     }
@@ -228,7 +235,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
   async function handleDelete() {
     const ch = getChar(selectedId);
     if (!window.confirm(`Delete "${ch.name}"? This cannot be undone.`)) return;
-    setSelectedId('strahd');
+    selectChar('strahd');
     await deleteCharacter(selectedId);
   }
 
@@ -248,30 +255,21 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="char-main">
-        <div className="char-topbar">
-          <button className="hamburger btn sm icon" onClick={onToggleNav}
-            dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
-          <button className="rosterToggle" onClick={() => setRosterOpen(o => !o)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="9" cy="7" r="3"/><path d="M3 21c0-4 2.7-6 6-6s6 2 6 6"/>
-              <circle cx="17" cy="9" r="2.5"/><path d="M21 21c0-3-1.5-4.5-4-5"/>
-            </svg>
-          </button>
-          <div className="char-crumb">
-            <Link to="/">Home</Link>
-            <span className="sep">›</span>
-            <b>Characters</b>
-          </div>
-          {profile?.role === 'dm' && (
-            <button
-              className={`dmswitch${isDM ? ' on' : ''}`}
-              onClick={onToggleDM}
-            >
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
+        <Topbar
+          onToggleNav={onToggleNav}
+          isDM={isDM}
+          onToggleDM={onToggleDM}
+          profile={profile}
+          leftExtra={
+            <button className="rosterToggle" onClick={() => setRosterOpen(o => !o)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="9" cy="7" r="3"/><path d="M3 21c0-4 2.7-6 6-6s6 2 6 6"/>
+                <circle cx="17" cy="9" r="2.5"/><path d="M21 21c0-3-1.5-4.5-4-5"/>
+              </svg>
             </button>
-          )}
-        </div>
+          }
+          crumb={<><Link to="/">World</Link><span className="sep">›</span><b>Characters</b></>}
+        />
 
         <div className="char-layout">
 

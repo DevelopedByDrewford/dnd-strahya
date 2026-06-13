@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import TimelineEntryModal from '../components/TimelineEntryModal';
 import { TL_I } from '../data/timeline';
 import { useTimeline } from '../hooks/useTimeline';
@@ -8,7 +9,7 @@ import './TimelinePage.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
 
-const MENU_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
 const SRAIL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>';
 const PLUS_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
 
@@ -212,47 +213,29 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="tl-main">
-        <div className="tl-topbar">
-          <div className="tl-left">
-            <button className="hamburger btn sm icon" onClick={onToggleNav}
-              dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
+        <Topbar
+          onToggleNav={onToggleNav}
+          isDM={isDM}
+          onToggleDM={onToggleDM}
+          profile={profile}
+          leftExtra={
             <button className="srailToggle" onClick={() => setSrailOpen(o => !o)}
               dangerouslySetInnerHTML={{ __html: SRAIL_SVG }} />
-            <span className="tl-crumb">Campaign › <b>Timeline</b></span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* Resync Seed Data for Timeline */}
-            {/* {isDM && entries.length > 0 && (
-              <button
-                className="btn sm ghost dm-only"
-                style={{ '--d': 'inline-flex' }}
-                onClick={handleSeed}
-                disabled={seeding}
-                title="Patch hidden:false onto existing entries so players can see them"
-              >
-                {seeding ? 'Syncing…' : 'Resync data'}
-              </button>
-            )} */}
-            {isDM && (
-              <button
-                className="btn sm dm-only"
-                style={{ '--d': 'inline-flex' }}
-                onClick={() => setModalEntry(null)}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 15, height: 15 }}>
-                  <path d="M12 5v14M5 12h14"/>
-                </svg>
-                New Entry
-              </button>
-            )}
-            {profile?.role === 'dm' && (
-              <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-                <span className={`toggle${isDM ? ' on' : ''}`} />
-                DM Mode
-              </button>
-            )}
-          </div>
-        </div>
+          }
+          crumb={<>Campaign › <b>Timeline</b></>}
+          rightExtra={isDM && (
+            <button
+              className="btn sm dm-only"
+              style={{ '--d': 'inline-flex' }}
+              onClick={() => setModalEntry(null)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 15, height: 15 }}>
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              New Entry
+            </button>
+          )}
+        />
 
         <div className="tl-layout">
           <SessionRail entries={visible} activeId={activeId} onJump={scrollToEntry} isDM={isDM} />

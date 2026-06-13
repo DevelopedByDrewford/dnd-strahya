@@ -8,18 +8,6 @@
 }
 .tl-main { min-width: 0; }
 
-/* ---- topbar ---- */
-.tl-topbar {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(180deg, rgba(16,12,11,.92), rgba(16,12,11,.7));
-  border-bottom: 1px solid var(--line);
-  padding: 13px 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-}
-.tl-topbar .tl-left { display: flex; align-items: center; gap: 8px; }
-.tl-crumb { font-size: 13px; color: var(--ink-3); }
-.tl-crumb b { color: var(--ink); font-weight: 600; }
 
 .srailToggle {
   display: none;
@@ -219,5 +207,5 @@ body.dm .entry-dm-actions { display: inline-flex; }
   .entry { padding-left: 54px; }
   .node { left: 9px; }
   .ecard h3 { font-size: 18px; }
-  .tl-topbar { padding: 11px 14px; }
+
 }

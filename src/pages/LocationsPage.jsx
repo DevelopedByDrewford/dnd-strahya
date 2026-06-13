@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import LocationModal from '../components/LocationModal';
 import NotesList from '../components/NotesList';
 import { ICONS } from '../data/locations';
@@ -216,7 +217,7 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, 
 // ---- Main page ----
 export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedId, setSelectedId] = useState('blue-water-inn');
+  const [selectedId, setSelectedId] = useState(searchParams.get('id') || 'blue-water-inn');
   const [collapsedIds, setCollapsedIds] = useState(new Set());
   const [treeOpen, setTreeOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(searchParams.get('new') === 'true');
@@ -230,6 +231,11 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
     if (searchParams.get('new') !== 'true') return;
     setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) setSelectedId(id);
+  }, [searchParams]);
 
   async function handleSeed() {
     setSeeding(true);
@@ -249,7 +255,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
     const loc = getLoc(selectedId);
     if (!window.confirm(`Delete "${loc.name}"? This cannot be undone.`)) return;
     const idToDelete = selectedId;
-    setSelectedId('blue-water-inn');
+    selectLocation('blue-water-inn');
     await deleteLocation(idToDelete);
   }
 
@@ -264,6 +270,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
 
   const selectLocation = (id) => {
     setSelectedId(id);
+    setSearchParams({ id }, { replace: true });
     if (window.innerWidth <= 900) setTreeOpen(false);
   };
 
@@ -297,25 +304,18 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="main">
-          <div className="loc-topbar">
-            <button className="btn icon ghost hamburger" onClick={onToggleNav}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </button>
-            <div className="loc-crumb">
+          <Topbar
+            onToggleNav={onToggleNav}
+            isDM={isDM}
+            onToggleDM={onToggleDM}
+            profile={profile}
+            leftExtra={
               <button className="btn icon ghost treeToggle" onClick={() => setTreeOpen(o => !o)}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
               </button>
-              <Link to="/locations" className="loc-crumb-link">Locations</Link>
-              <span className="sep">›</span>
-              {crumb}
-            </div>
-            {profile?.role === 'dm' && (
-              <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-                <span className={`toggle${isDM ? ' on' : ''}`} />
-                DM Mode
-              </div>
-            )}
-          </div>
+            }
+            crumb={<><Link to="/locations">Locations</Link><span className="sep">›</span>{crumb}</>}
+          />
 
           <div className="loc-layout">
             {/* Tree panel */}

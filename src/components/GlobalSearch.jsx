@@ -4,6 +4,7 @@ import { useCharacters } from '../hooks/useCharacters';
 import { useLocations } from '../hooks/useLocations';
 import { useQuests } from '../hooks/useQuests';
 import { useTimeline } from '../hooks/useTimeline';
+import { useLoot } from '../hooks/useLoot';
 import './GlobalSearch.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
@@ -53,6 +54,7 @@ export default function GlobalSearch({ isDM, user, profile }) {
   const { locations } = useLocations({ isDM });
   const { quests } = useQuests({ isDM, userId: user?.uid });
   const { entries } = useTimeline(CAMPAIGN_ID, { isDM });
+  const { items: lootItems } = useLoot(CAMPAIGN_ID, { isDM, userId: user?.uid });
 
   useEffect(() => {
     function onKey(e) {
@@ -129,20 +131,26 @@ export default function GlobalSearch({ isDM, user, profile }) {
     const charItems = mergedRoster
       .flatMap(g => g.items)
       .filter(c => hit(c.n, q) || hit(c.r, q))
-      .map(c => ({ type: 'character', label: c.n, sub: c.r || 'Character', to: '/characters', icon: 'character' }));
+      .map(c => ({ type: 'character', label: c.n, sub: c.r || 'Character', to: `/characters?id=${c.id}`, icon: 'character' }));
     if (charItems.length) results.push({ label: 'Characters', items: charItems });
 
     // Locations
     const locItems = (locations || [])
       .filter(l => hit(l.name, q) || hit(l.locationType, q))
-      .map(l => ({ type: 'location', label: l.name, sub: l.locationType || 'Location', to: '/locations', icon: 'location' }));
+      .map(l => ({ type: 'location', label: l.name, sub: l.locationType || 'Location', to: `/locations?id=${l.id}`, icon: 'location' }));
     if (locItems.length) results.push({ label: 'Locations', items: locItems });
 
     // Quests
     const questItems = quests
       .filter(qt => hit(qt.name, q) || hit(qt.desc, q))
-      .map(qt => ({ type: 'quest', label: qt.name, sub: qt.status === 'completed' ? 'Completed' : 'Active', to: '/quests', icon: 'quest' }));
+      .map(qt => ({ type: 'quest', label: qt.name, sub: qt.status === 'completed' ? 'Completed' : 'Active', to: `/quests?id=${qt.id}`, icon: 'quest' }));
     if (questItems.length) results.push({ label: 'Quests', items: questItems });
+
+    // Loot
+    const lootResults = (lootItems || [])
+      .filter(l => hit(l.name, q) || hit(l.subtitle, q) || hit(l.foundAt, q))
+      .map(l => ({ type: 'loot', label: l.name, sub: l.subtitle || l.foundAt || 'Loot item', to: '/loot', icon: 'loot' }));
+    if (lootResults.length) results.push({ label: 'Loot', items: lootResults });
 
     // Timeline
     const tlItems = entries
@@ -151,7 +159,7 @@ export default function GlobalSearch({ isDM, user, profile }) {
     if (tlItems.length) results.push({ label: 'Timeline', items: tlItems });
 
     return results;
-  }, [query, mergedRoster, locations, quests, entries, profile?.role]);
+  }, [query, mergedRoster, locations, quests, entries, lootItems, profile?.role]);
 
   const flatItems = useMemo(() => sections.flatMap(s => s.items), [sections]);
 

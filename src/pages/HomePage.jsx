@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import { useActivity } from '../hooks/useActivity';
 import { useTimeline } from '../hooks/useTimeline';
 import { useCharacters } from '../hooks/useCharacters';
 import { useLocations } from '../hooks/useLocations';
 import { useQuests } from '../hooks/useQuests';
+import { useLoot } from '../hooks/useLoot';
 import './HomePage.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
@@ -51,6 +53,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
   const { mergedRoster } = useCharacters({ isDM });
   const { locations } = useLocations({ isDM });
   const { quests } = useQuests({ isDM, userId: user?.uid });
+  const { items: lootItems, totalGp } = useLoot(CAMPAIGN_ID, { isDM, userId: user?.uid });
 
   const locCount  = locations.length;
   const charCount = mergedRoster.flatMap(g => g.items).length;
@@ -64,29 +67,13 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="main">
-          <div className="topbar">
-            <div className="row center gap-s">
-              <button className="btn icon ghost hamburger" onClick={onToggleNav}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-              </button>
-              <span className="crumb">Campaign › <b>Home</b></span>
-            </div>
-            <div className="search" role="button" tabIndex={0}
-              onClick={() => window.dispatchEvent(new Event('open-global-search'))}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') window.dispatchEvent(new Event('open-global-search')); }}
-              style={{ cursor: 'text' }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
-              Search the tome…
-              <span className="kbd">⌘K</span>
-            </div>
-            {profile?.role === 'dm' && (
-              <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-                <span className={`toggle${isDM ? ' on' : ''}`} />
-                DM Mode
-              </div>
-            )}
-          </div>
+          <Topbar
+            crumb={<>Campaign › <b>Home</b></>}
+            onToggleNav={onToggleNav}
+            isDM={isDM}
+            onToggleDM={onToggleDM}
+            profile={profile}
+          />
 
           <div className="content">
             {/* hero */}
@@ -131,7 +118,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 <Link to="/loot">
                   <HubTile
                     icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg>}
-                    label="Loot" count={18} sub="1,204 gp pooled"
+                    label="Loot" count={lootItems.length || '—'} sub={totalGp > 0 ? `${totalGp.toLocaleString()} gp pooled` : 'Party treasure'}
                   />
                 </Link>
                 <HubTile

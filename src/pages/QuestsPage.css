@@ -9,34 +9,7 @@
 
 .q-main { min-width: 0; }
 
-/* ---- topbar ---- */
-.q-topbar {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(180deg, rgba(16,12,11,.92), rgba(16,12,11,.7));
-  border-bottom: 1px solid var(--line);
-  padding: 13px 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-}
 
-.q-topbar .q-left { display: flex; align-items: center; gap: 8px; }
-
-/* tabs */
-.q-tabs {
-  display: flex; gap: 4px;
-  background: var(--bg-2); border: 1px solid var(--line); border-radius: 11px; padding: 3px;
-}
-.q-tab {
-  padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  color: var(--ink-3); cursor: pointer; transition: .16s;
-  border: 1px solid transparent;
-}
-.q-tab.on {
-  color: var(--ink);
-  background: linear-gradient(180deg, rgba(214,171,91,.16), rgba(214,171,91,.04));
-  border-color: rgba(214,171,91,.3);
-  padding: 5px 15px;
-}
 
 /* qlist toggle button — hidden on desktop */
 .qlistToggle {
@@ -48,9 +21,6 @@
 }
 .qlistToggle svg { width: 18px; height: 18px; }
 
-/* ---- views ---- */
-.q-view { display: none; }
-.q-view.on { display: block; }
 
 /* ============ QUEST BOARD ============ */
 
@@ -115,6 +85,17 @@
 }
 .qcard.done { opacity: .62; }
 .qcard.done .qbar > span { background: linear-gradient(90deg, #4a6b3a, var(--live)); }
+
+body.dm .qcard.qcard-hidden {
+  border-color: rgba(200,70,60,.35);
+  background: linear-gradient(180deg, rgba(176,48,40,.07), transparent), var(--bg-2);
+}
+body.dm .qcard.qcard-hidden:hover { border-color: rgba(200,70,60,.55); }
+body.dm .qcard.qcard-hidden.sel {
+  border-color: rgba(200,70,60,.6);
+  background: linear-gradient(180deg, rgba(176,48,40,.14), transparent), var(--bg-2);
+}
+body.dm .qcard.qcard-hidden .qnm { color: #f0b3ad; }
 
 /* deadline badge */
 .deadline {
@@ -192,6 +173,24 @@
 .q-secret h3 { color: #f0b3ad; }
 .q-secret .q-prose { font-size: 15px; color: #ecd9c8; }
 
+/* notes in quest column — match q-sec heading and qfilter pill style */
+.quest-notes-section .notes-head { margin-bottom: 13px; }
+.quest-notes-section .notes-head h3 {
+  font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold); font-family: var(--display); font-weight: 600;
+}
+.quest-notes-section .nfilters { margin-bottom: 13px; }
+.quest-notes-section .nfilter {
+  font-size: 12px; padding: 4px 11px; border-radius: 30px;
+  border: 1px solid var(--line); color: var(--ink-3); cursor: pointer;
+  background: none; font-family: var(--body);
+}
+.quest-notes-section .nfilter.on {
+  color: var(--ink); border-color: var(--line-2); background: rgba(255,255,255,.04);
+}
+.quest-notes-section .note { border-radius: 13px; }
+.quest-notes-section .nadd { margin-top: 8px; }
+
 /* ============ LOOT ============ */
 .lootwrap { padding: 24px 26px 70px; max-width: 1000px; }
 
@@ -268,7 +267,7 @@
   .hamburger { display: inline-flex; }
   .q-tab { padding: 6px 11px; }
   .qdetail, .lootwrap { padding: 18px; }
-  .q-topbar { padding: 11px 14px; }
+
   .lrow { grid-template-columns: auto 1fr; }
   .lclaim-col, .lhclaim, .lval-col, .lhval { display: none; }
 }

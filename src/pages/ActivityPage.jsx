@@ -1,11 +1,10 @@
-import { useSearchParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import { PRESENCE, REC_I, ACT_I } from '../data/activity';
 import { useActivity } from '../hooks/useActivity';
 import './ActivityPage.css';
 
-const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
 
 const FILTERS = [
   { key: 'all',     label: 'All',        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>' },
@@ -156,24 +155,13 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
         <div className="act-main">
-          <div className="act-topbar">
-            <div className="act-crumb">
-              <button
-                className="hamburger btn sm icon ghost"
-                onClick={onToggleNav}
-                dangerouslySetInnerHTML={{ __html: MENU_SVG }}
-              />
-              <span>
-                <Link to="/">Home</Link> › <b>Activity</b>
-              </span>
-            </div>
-            {profile?.role === 'dm' && (
-              <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-                <span className={`toggle${isDM ? ' on' : ''}`} />
-                DM Mode
-              </div>
-            )}
-          </div>
+          <Topbar
+            onToggleNav={onToggleNav}
+            isDM={isDM}
+            onToggleDM={onToggleDM}
+            profile={profile}
+            crumb={<><Link to="/">Home</Link><span className="sep">›</span><b>Activity</b></>}
+          />
 
           <div className="act-wrap">
             {/* Header */}

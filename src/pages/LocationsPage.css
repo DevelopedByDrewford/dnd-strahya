@@ -1,20 +1,3 @@
-.loc-topbar {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(180deg, rgba(16,12,11,.92), rgba(16,12,11,.7));
-  border-bottom: 1px solid var(--line);
-  padding: 13px 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-}
-
-.loc-crumb {
-  font-size: 13px; color: var(--ink-3);
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-}
-.loc-crumb b { color: var(--ink); font-weight: 600; }
-.loc-crumb .sep { opacity: .4; }
-.loc-crumb button, .loc-crumb-link { background: none; border: none; color: var(--ink-3); font-size: 13px; cursor: pointer; padding: 0; font-family: var(--body); text-decoration: none; }
-.loc-crumb button:hover, .loc-crumb-link:hover { color: var(--gold); }
 
 /* ---------------- layout ---------------- */
 .loc-layout { display: grid; grid-template-columns: 264px 1fr; gap: 0; align-items: start; }
@@ -202,7 +185,7 @@ body.dm .trow.dmrow .tlbl { color: #f0b3ad; }
 }
 
 @media (max-width: 760px) {
-  .loc-topbar { padding: 11px 16px; }
+
   .banner { height: 170px; }
   .banner-label h1 { font-size: 27px; }
   .dbody { padding: 18px; }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import { useLoot } from '../hooks/useLoot';
 import { QI } from '../data/quests';
 import './LootPage.css';
@@ -8,7 +9,7 @@ import './LootPage.css';
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
 const CURRENT_USER = 'Tessa';
 
-const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
 const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
 
 const ICON_KEYS = ['coin', 'sword', 'potion', 'book'];
@@ -268,19 +269,13 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
 
       <div className="lt-main">
-        <div className="lt-topbar">
-          <button
-            className="hamburger btn sm icon"
-            onClick={onToggleNav}
-            dangerouslySetInnerHTML={{ __html: MENU_SVG }}
-          />
-          {profile?.role === 'dm' && (
-            <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </button>
-          )}
-        </div>
+        <Topbar
+          onToggleNav={onToggleNav}
+          isDM={isDM}
+          onToggleDM={onToggleDM}
+          profile={profile}
+          crumb={<>World › <b>Loot</b></>}
+        />
 
         <div className="lt-wrap">
           <div className="lt-head">
