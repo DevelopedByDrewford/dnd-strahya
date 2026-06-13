@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import LinkedRecordPicker from './LinkedRecordPicker';
 
 const GROUPS = ['The Party', 'Allies', 'Enemies', 'Hidden'];
 
@@ -13,9 +14,10 @@ const BLANK = {
   appearance: '',
   personality: '',
   secret: '',
+  rels: [],
 };
 
-export default function CharacterModal({ initial, onSave, onClose }) {
+export default function CharacterModal({ initial, onSave, onClose, allCharacters = [], locations = [] }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(() => initial ? {
     name: initial.name || '',
@@ -28,6 +30,7 @@ export default function CharacterModal({ initial, onSave, onClose }) {
     appearance: Array.isArray(initial.appearance) ? initial.appearance.join('\n\n') : initial.appearance || '',
     personality: initial.personality || '',
     secret: initial.secret || '',
+    rels: initial.rels || [],
   } : BLANK);
   const [saving, setSaving] = useState(false);
 
@@ -51,12 +54,20 @@ export default function CharacterModal({ initial, onSave, onClose }) {
         appearance: form.appearance.trim(),
         personality: form.personality.trim(),
         secret: form.secret.trim(),
+        rels: form.rels,
       });
       onClose();
     } finally {
       setSaving(false);
     }
   }
+
+  const relOptions = [
+    ...allCharacters
+      .filter(c => c.id !== initial?.id)
+      .map(c => ({ id: c.id, name: c.name || c.n, kind: 'character' })),
+    ...locations.map(l => ({ id: l.id, name: l.name, kind: 'location' })),
+  ];
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -164,6 +175,16 @@ export default function CharacterModal({ initial, onSave, onClose }) {
               value={form.personality}
               onChange={e => set('personality', e.target.value)}
               placeholder="Traits, ideals, flaws…"
+            />
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Relationships</label>
+            <LinkedRecordPicker
+              items={form.rels}
+              onChange={v => set('rels', v)}
+              options={relOptions}
+              labelPlaceholder="Relationship type (e.g. Sister, Rival)"
             />
           </div>
 

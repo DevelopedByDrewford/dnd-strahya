@@ -6,6 +6,8 @@ import LocationModal from '../components/LocationModal';
 import NotesList from '../components/NotesList';
 import { ICONS } from '../data/locations';
 import { useLocations } from '../hooks/useLocations';
+import { useCharacters } from '../hooks/useCharacters';
+import { useQuests } from '../hooks/useQuests';
 import ImageLightbox from '../components/ImageLightbox';
 import './LocationsPage.css';
 
@@ -79,17 +81,35 @@ function SubCard({ sub, onSelect }) {
 
 // ---- Person card ----
 function PersonCard({ person }) {
+  const name = person.name || person.n || '?';
+  const role = person.role || person.r || '';
+  const inner = (
+    <>
+      <span className="av" style={{ width: 34, height: 34, fontSize: 12 }}>{name[0]}</span>
+      <div>
+        <div className="pc-name">{name}</div>
+        {role && <div className="pc-role">{role}</div>}
+      </div>
+    </>
+  );
+  if (person.id) {
+    return (
+      <Link
+        to={`/characters?id=${person.id}`}
+        className={`pc pc-link${person.dm ? ' dm-only reveal-frame' : ''}`}
+        style={person.dm ? { '--d': 'flex' } : undefined}
+      >
+        {inner}
+      </Link>
+    );
+  }
   return (
-    <button
+    <div
       className={`pc${person.dm ? ' dm-only reveal-frame' : ''}`}
       style={person.dm ? { '--d': 'flex' } : undefined}
     >
-      <span className="av" style={{ width: 34, height: 34, fontSize: 12 }}>{person.n[0]}</span>
-      <div>
-        <div className="pc-name">{person.n}</div>
-        <div className="pc-role">{person.r}</div>
-      </div>
-    </button>
+      {inner}
+    </div>
   );
 }
 
@@ -183,16 +203,21 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, 
           <div className="sec">
             <div className="sec-head"><h3>Quests</h3></div>
             {loc.quests.length > 0
-              ? loc.quests.map((q, i) => (
-                <div key={i} className="qrow">
-                  <div className="qrow-ic" dangerouslySetInnerHTML={{ __html: ICONS.quest }} />
-                  <div className="grow">
-                    <div className="qrow-name">{q.n}</div>
-                    <div className="qrow-meta">{q.m}</div>
+              ? loc.quests.map((q, i) => {
+                const qname = q.name || q.n || '?';
+                return (
+                  <div key={i} className="qrow">
+                    <div className="qrow-ic" dangerouslySetInnerHTML={{ __html: ICONS.quest }} />
+                    <div className="grow">
+                      {q.id
+                        ? <Link to={`/quests?id=${q.id}`} className="qrow-name lnk">{qname}</Link>
+                        : <div className="qrow-name">{qname}</div>
+                      }
+                    </div>
+                    <span className="chip sm gold">Active</span>
                   </div>
-                  <span className="chip sm gold">Active</span>
-                </div>
-              ))
+                );
+              })
               : <div className="no-quests">No quests tied to this place.</div>
             }
           </div>
@@ -223,6 +248,9 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
   const [modalOpen, setModalOpen] = useState(searchParams.get('new') === 'true');
 
   const { mergedTree, getLoc, loading, seeded, addLocation, updateLocation, deleteLocation, seedLocations } = useLocations({ isDM });
+  const { mergedRoster } = useCharacters({ isDM });
+  const { quests } = useQuests({ userId: user?.uid, isDM });
+  const allChars = mergedRoster.flatMap(g => g.items);
   const [seeding, setSeeding] = useState(false);
   const [editModal, setEditModal] = useState(null); // null | { id, loc }
   const [lightbox, setLightbox] = useState(null);
@@ -363,6 +391,8 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
         <LocationModal
           onSave={addLocation}
           onClose={() => setModalOpen(false)}
+          characters={allChars}
+          quests={quests}
         />
       )}
       {editModal && (
@@ -370,6 +400,8 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
           initial={editModal.loc}
           onSave={handleEditSave}
           onClose={() => setEditModal(null)}
+          characters={allChars}
+          quests={quests}
         />
       )}
       <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />

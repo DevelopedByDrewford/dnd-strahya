@@ -127,6 +127,12 @@ body.dm .qcard.qcard-hidden .qnm { color: #f0b3ad; }
 .q-sec h3 .count-label { color: var(--ink-3); text-transform: none; letter-spacing: 0; font-size: 12px; }
 
 /* checklist */
+.checklist-head {
+  display: flex; align-items: center; padding: 0 13px 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+}
+.ch-done { color: var(--gold); }
+.ch-fail { color: var(--blood-2); }
 .checklist { display: flex; flex-direction: column; gap: 2px; }
 .q-check {
   display: flex; align-items: center; gap: 12px; padding: 11px 13px;
@@ -144,13 +150,30 @@ body.dm .qcard.qcard-hidden .qnm { color: #f0b3ad; }
 .q-check.on .q-box svg { opacity: 1; }
 .q-check .ct { font-size: 14.5px; color: var(--ink); flex: 1; }
 .q-check.on .ct { color: var(--ink-3); text-decoration: line-through; }
+.q-check.fail .ct { color: var(--blood-2); text-decoration: line-through; }
 .q-check .cd { font-size: 11px; }
+.q-fail-box {
+  width: 21px; height: 21px; border-radius: 6px; border: 1.5px solid var(--line-2); flex: none;
+  display: flex; align-items: center; justify-content: center; transition: .16s; cursor: pointer;
+  opacity: 0; transition: opacity .14s, background .16s, border-color .16s;
+}
+.q-check:hover .q-fail-box { opacity: 1; }
+.q-check.fail .q-fail-box { opacity: 1; background: linear-gradient(180deg, var(--blood-2), var(--blood)); border-color: var(--blood); }
+.q-fail-box svg { width: 13px; height: 13px; color: white; opacity: 0; transition: .16s; }
+.q-check.fail .q-fail-box svg { opacity: 1; }
+.count-fail { color: var(--blood-2); }
 .addsub {
   display: flex; align-items: center; gap: 10px; padding: 10px 13px;
   color: var(--ink-3); font-size: 13px; cursor: pointer; border-radius: 11px;
 }
 .addsub:hover { background: rgba(255,255,255,.03); color: var(--ink-2); }
-.addsub .q-box { border-style: dashed; }
+.addsub .q-box { border-style: dashed; flex: none; }
+.addsub-active { cursor: default; background: rgba(255,255,255,.02); border: 1px solid var(--line); }
+.addsub-active:hover { background: rgba(255,255,255,.02); color: var(--ink-3); }
+.addsub-field {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--ink); font-size: 14px; font-family: inherit; min-width: 0;
+}
 
 /* right side rail */
 .qside { position: sticky; top: 73px; display: flex; flex-direction: column; gap: 14px; }

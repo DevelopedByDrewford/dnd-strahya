@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import QuestModal from '../components/QuestModal';
 import NotesList from '../components/NotesList';
 import { QI } from '../data/quests';
 import { useQuests } from '../hooks/useQuests';
+import { useCharacters } from '../hooks/useCharacters';
+import { useLocations } from '../hooks/useLocations';
 import './QuestsPage.css';
 import { lang } from '../data/lang';
 
@@ -79,10 +81,22 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew
   );
 }
 
-function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile }) {
+function QuestDetail({ quest, isDM, onToggleSub, onAddSub, onEdit, onDelete, user, profile }) {
+  const [addingObj, setAddingObj] = useState(false);
+  const [newObj, setNewObj] = useState('');
+
   if (!quest) return <div className="qdetail"><p className="muted">Select a quest.</p></div>;
 
+  function submitNewObj() {
+    const text = newObj.trim();
+    if (!text) return;
+    onAddSub(quest.id, text);
+    setNewObj('');
+    setAddingObj(false);
+  }
+
   const doneCount = quest.subs.filter(s => s.done).length;
+  const failCount = quest.subs.filter(s => s.failed).length;
 
   const statusChip = quest.status === 'completed'
     ? <span className="chip sm" style={{ color: 'var(--live)', borderColor: 'rgba(127,160,95,.4)', background: 'rgba(127,160,95,.1)' }}>✓ Completed</span>
@@ -124,23 +138,59 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
           <div className="q-sec">
             <h3>
               Objectives
-              <span className="count-label">{doneCount}/{quest.subs.length} done</span>
+              <span className="count-label">
+                {doneCount}/{quest.subs.length} done
+                {failCount > 0 && <span className="count-fail"> · {failCount} failed</span>}
+              </span>
             </h3>
+            {quest.subs.length > 0 && (
+              <div className="checklist-head">
+                <span className="ch-done">Completed</span>
+                <span style={{ flex: 1 }} />
+                <span className="ch-fail">Failed</span>
+              </div>
+            )}
             <div className="checklist">
               {quest.subs.map((s, i) => (
                 <div
                   key={i}
-                  className={`q-check${s.done ? ' on' : ''}`}
-                  onClick={() => onToggleSub(quest.id, i)}
+                  className={`q-check${s.done ? ' on' : ''}${s.failed ? ' fail' : ''}`}
+                  onClick={() => onToggleSub(quest.id, i, 'done')}
                 >
                   <span className="q-box" dangerouslySetInnerHTML={{ __html: QI.check }} />
                   <span className="ct">{s.t}</span>
+                  <span
+                    className="q-fail-box"
+                    dangerouslySetInnerHTML={{ __html: QI.x }}
+                    onClick={e => { e.stopPropagation(); onToggleSub(quest.id, i, 'failed'); }}
+                  />
                 </div>
               ))}
-              <div className="addsub">
-                <span className="q-box" style={{ borderStyle: 'dashed' }} />
-                Add an objective…
-              </div>
+              {user && quest.firestore && (
+                addingObj ? (
+                  <div className="addsub addsub-active">
+                    <span className="q-box" style={{ borderStyle: 'dashed' }} />
+                    <input
+                      className="addsub-field"
+                      autoFocus
+                      placeholder="New objective…"
+                      value={newObj}
+                      onChange={e => setNewObj(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') { e.preventDefault(); submitNewObj(); }
+                        if (e.key === 'Escape') { setAddingObj(false); setNewObj(''); }
+                      }}
+                    />
+                    <button className="btn sm" onClick={submitNewObj} disabled={!newObj.trim()}>Add</button>
+                    <button className="btn sm ghost" onClick={() => { setAddingObj(false); setNewObj(''); }}>✕</button>
+                  </div>
+                ) : (
+                  <div className="addsub" onClick={() => setAddingObj(true)}>
+                    <span className="q-box" style={{ borderStyle: 'dashed' }} />
+                    Add an objective…
+                  </div>
+                )
+              )}
             </div>
           </div>
 
@@ -175,8 +225,11 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
               <span className="av" style={{ width: 32, height: 32, fontSize: 12 }}>
                 {quest.giver[0]}
               </span>
-              <div>
-                <div className="nm">{quest.giver}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {quest.giverId
+                  ? <Link to={`/characters?id=${quest.giverId}`} className="nm lnk">{quest.giver}</Link>
+                  : <div className="nm">{quest.giver}</div>
+                }
                 <div className="ty">{quest.location}</div>
               </div>
             </div>
@@ -192,20 +245,30 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
             ))}
           </div>
 
-          <div className="scard">
-            <div className="sk">Linked Records</div>
-            {quest.links.map((l, i) => (
-              <div key={i} className="linkrow">
-                <span className="av" style={{ width: 30, height: 30, fontSize: 12 }}
-                  dangerouslySetInnerHTML={{ __html: QI[l.i] || '' }}
-                />
-                <div>
-                  <div className="nm">{l.n}</div>
-                  <div className="ty">{l.t}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {quest.links.length > 0 && (
+            <div className="scard">
+              <div className="sk">Linked Records</div>
+              {quest.links.map((l, i) => {
+                const href = l.id
+                  ? (l.kind === 'location' ? `/locations?id=${l.id}` : l.kind === 'quest' ? `/quests?id=${l.id}` : `/characters?id=${l.id}`)
+                  : null;
+                return (
+                  <div key={i} className="linkrow">
+                    <span className="av" style={{ width: 30, height: 30, fontSize: 12 }}
+                      dangerouslySetInnerHTML={{ __html: l.kind === 'location' ? QI.pin : QI.user }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {href
+                        ? <Link to={href} className="nm lnk">{l.name}</Link>
+                        : <div className="nm">{l.name}</div>
+                      }
+                      {l.label && <div className="ty">{l.label}</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </aside>
       </div>
     </div>
@@ -216,6 +279,9 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
 export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { quests, loading, seeded, addQuest, updateQuest, deleteQuest, seedQuests } = useQuests({ userId: user?.uid, isDM });
+  const { mergedRoster } = useCharacters({ isDM });
+  const { locations } = useLocations({ isDM });
+  const allChars = mergedRoster.flatMap(g => g.items);
   const [seeding, setSeeding] = useState(false);
   const [selectedId, setSelectedId] = useState(searchParams.get('id') || 'soul-coins');
   const [filter, setFilter]         = useState('Active');
@@ -248,13 +314,19 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
     setQlistOpen(false);
   }
 
-  async function toggleSub(questId, subIndex) {
+  async function toggleSub(questId, subIndex, field = 'done') {
     const quest = quests.find(q => q.id === questId);
     if (!quest) return;
-    const newSubs = quest.subs.map((s, i) => i === subIndex ? { ...s, done: !s.done } : s);
+    const newSubs = quest.subs.map((s, i) => i === subIndex ? { ...s, [field]: !s[field] } : s);
     if (quest.firestore) {
       await updateQuest(questId, { subs: newSubs });
     }
+  }
+
+  async function addSub(questId, text) {
+    const quest = quests.find(q => q.id === questId);
+    if (!quest || !quest.firestore) return;
+    await updateQuest(questId, { subs: [...quest.subs, { t: text, done: false }] });
   }
 
   function closeAll() {
@@ -318,6 +390,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
             quest={selectedQuest}
             isDM={isDM}
             onToggleSub={toggleSub}
+            onAddSub={addSub}
             onEdit={() => setModal({ mode: 'edit', quest: selectedQuest })}
             onDelete={handleDelete}
             user={user}
@@ -331,6 +404,8 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
           initial={modal.mode === 'edit' ? modal.quest : null}
           onSave={handleSave}
           onClose={() => setModal(null)}
+          characters={allChars}
+          locations={locations}
         />
       )}
     </div>

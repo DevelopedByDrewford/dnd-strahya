@@ -6,6 +6,7 @@ import CharacterModal from '../components/CharacterModal';
 import NotesList from '../components/NotesList';
 import { STATUS_ICONS } from '../data/characters';
 import { useCharacters } from '../hooks/useCharacters';
+import { useLocations } from '../hooks/useLocations';
 import ImageLightbox from '../components/ImageLightbox';
 import './CharactersPage.css';
 import { lang } from '../data/lang';
@@ -145,12 +146,19 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile, onImageCli
           <div className="char-sec-head"><h3>Relationships</h3></div>
           <div className="char-sec-body">
             <div className="char-rels">
-              {ch.rels.filter(r => !r.dm || isDM).map((r, i) => (
-                <div key={i} className={`relcard${r.dm ? ' dm-only' : ''}`}>
-                  <div className="reln">{r.n}</div>
-                  <div className="relt">{r.t}</div>
-                </div>
-              ))}
+              {ch.rels.filter(r => !r.dm || isDM).map((r, i) => {
+                const href = r.id
+                  ? (r.kind === 'location' ? `/locations?id=${r.id}` : `/characters?id=${r.id}`)
+                  : null;
+                return (
+                  <div key={i} className={`relcard${r.dm ? ' dm-only' : ''}`}>
+                    <div className="reln">
+                      {href ? <Link to={href} className="lnk">{r.name}</Link> : (r.name || r.n)}
+                    </div>
+                    <div className="relt">{r.type || r.t}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -175,6 +183,8 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile, onImageCli
 export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { mergedRoster, getChar, loading, seeded, addCharacter, updateCharacter, deleteCharacter, seedCharacters } = useCharacters({ isDM });
+  const { locations } = useLocations({ isDM });
+  const allChars = mergedRoster.flatMap(g => g.items);
   const [selectedId, setSelectedId] = useState(searchParams.get('id') || 'strahd');
   const [rosterOpen, setRosterOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -336,6 +346,8 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
           initial={modal.mode === 'edit' ? modal.char : null}
           onSave={handleSave}
           onClose={() => setModal(null)}
+          allCharacters={allChars}
+          locations={locations}
         />
       )}
       <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />

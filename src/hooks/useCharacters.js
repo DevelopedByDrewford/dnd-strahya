@@ -280,7 +280,12 @@ export function useCharacters({ isDM = false } = {}) {
         secret: fs.secret || '',
         tactics: fs.tactics || '',
         statblock,
-        rels: fs.rels || [],
+        rels: (fs.rels || []).map(r => ({
+          id: r.id || null,
+          name: r.name || r.n || '',
+          type: r.type || r.t || '',
+          kind: r.kind || 'character',
+        })),
         notes: fs.notes || [],
         firestore: true,
         rosterRole: fs.rosterRole || '',

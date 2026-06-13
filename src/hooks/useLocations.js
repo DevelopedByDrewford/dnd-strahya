@@ -230,9 +230,17 @@ export function useLocations({ isDM = false } = {}) {
         imageUrl: fs.imageUrl || '',
         desc: Array.isArray(fs.desc) ? fs.desc : (fs.desc ? [fs.desc] : ['No description yet.']),
         secret: fs.secret || '',
-        people: fs.people || [],
+        people: (fs.people || []).map(p => ({
+          id: p.id || null,
+          name: p.name || p.n || '',
+          role: p.role || p.r || '',
+          dm: p.dm || false,
+        })),
         subs: fs.subs || [],
-        quests: fs.quests || [],
+        quests: (fs.quests || []).map(q => ({
+          id: q.id || null,
+          name: q.name || q.n || '',
+        })),
         notes: fs.notes || [],
         firestore: true,
       };

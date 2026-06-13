@@ -1,31 +1,32 @@
 import { useState } from 'react';
+import LinkedRecordPicker from './LinkedRecordPicker';
 
 const BLANK = {
   name: '',
   status: 'active',
   by: '',
-  giver: '',
-  location: '',
+  giverId: '',
   visibility: 'players',
   desc: '',
   rewards: '',
   secret: '',
   subs: [],
+  links: [],
 };
 
-export default function QuestModal({ initial, onSave, onClose }) {
+export default function QuestModal({ initial, onSave, onClose, characters = [], locations = [] }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(() => initial ? {
     name: initial.name || '',
     status: initial.status || 'active',
     by: initial.by || '',
-    giver: initial.giver || '',
-    location: initial.location || '',
+    giverId: initial.giverId || '',
     visibility: initial.dm ? 'hidden' : 'players',
     desc: initial.desc || '',
     rewards: Array.isArray(initial.rewards) ? initial.rewards.join(', ') : initial.rewards || '',
     secret: initial.secret || '',
     subs: initial.subs ? initial.subs.map(s => ({ t: s.t, done: s.done })) : [],
+    links: initial.links || [],
   } : BLANK);
   const [saving, setSaving] = useState(false);
 
@@ -49,24 +50,31 @@ export default function QuestModal({ initial, onSave, onClose }) {
     e.preventDefault();
     if (!form.name.trim()) return;
     setSaving(true);
+    const giver = characters.find(c => c.id === form.giverId);
     try {
       await onSave({
         name: form.name.trim(),
         status: form.status,
         by: form.by.trim() || '—',
-        giver: form.giver.trim() || '—',
-        location: form.location.trim() || '—',
+        giverId: form.giverId || null,
+        giver: giver?.name || form.giverId || '—',
         visibility: form.visibility,
         desc: form.desc.trim(),
         rewards: form.rewards.split(',').map(r => r.trim()).filter(Boolean),
         secret: form.secret.trim(),
         subs: form.subs.filter(s => s.t.trim()).map(s => ({ t: s.t.trim(), done: s.done })),
+        links: form.links,
       });
       onClose();
     } finally {
       setSaving(false);
     }
   }
+
+  const linkOptions = [
+    ...characters.map(c => ({ id: c.id, name: c.name || c.n, kind: 'character' })),
+    ...locations.map(l => ({ id: l.id, name: l.name, kind: 'location' })),
+  ];
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -113,32 +121,22 @@ export default function QuestModal({ initial, onSave, onClose }) {
           <div className="fgrid-2">
             <div className="frow">
               <label className="flabel">Quest Giver</label>
-              <input
-                className="finput"
-                value={form.giver}
-                onChange={e => set('giver', e.target.value)}
-                placeholder="e.g. Father Lucian"
-              />
+              <select className="finput" value={form.giverId} onChange={e => set('giverId', e.target.value)}>
+                <option value="">— None —</option>
+                {characters.map(c => (
+                  <option key={c.id} value={c.id}>{c.name || c.n}</option>
+                ))}
+              </select>
             </div>
             <div className="frow">
-              <label className="flabel">Location</label>
+              <label className="flabel">Added by</label>
               <input
                 className="finput"
-                value={form.location}
-                onChange={e => set('location', e.target.value)}
-                placeholder="e.g. Vallaki"
+                value={form.by}
+                onChange={e => set('by', e.target.value)}
+                placeholder="e.g. Tessa"
               />
             </div>
-          </div>
-
-          <div className="frow">
-            <label className="flabel">Added by</label>
-            <input
-              className="finput"
-              value={form.by}
-              onChange={e => set('by', e.target.value)}
-              placeholder="e.g. Tessa"
-            />
           </div>
 
           <div className="frow">
@@ -181,6 +179,16 @@ export default function QuestModal({ initial, onSave, onClose }) {
               value={form.rewards}
               onChange={e => set('rewards', e.target.value)}
               placeholder="Comma-separated — e.g. Ireena's trust, 500 gp"
+            />
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Linked Records</label>
+            <LinkedRecordPicker
+              items={form.links}
+              onChange={v => set('links', v)}
+              options={linkOptions}
+              labelPlaceholder="Relationship (e.g. Quest giver, Location)"
             />
           </div>
 

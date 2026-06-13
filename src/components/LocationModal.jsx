@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PARENT_OPTIONS } from '../hooks/useLocations';
+import LinkedRecordPicker from './LinkedRecordPicker';
 
 const ICON_OPTIONS = [
   { value: 'pin',    label: 'Pin (generic)' },
@@ -19,6 +20,8 @@ const BLANK = {
   desc: '',
   secret: '',
   imageUrl: '',
+  people: [],
+  quests: [],
 };
 
 function toForm(loc) {
@@ -32,10 +35,12 @@ function toForm(loc) {
     desc: Array.isArray(loc.desc) ? loc.desc.join('\n\n') : (loc.desc || ''),
     secret: loc.secret || '',
     imageUrl: loc.imageUrl || '',
+    people: loc.people || [],
+    quests: loc.quests || [],
   };
 }
 
-export default function LocationModal({ initial, onSave, onClose }) {
+export default function LocationModal({ initial, onSave, onClose, characters = [], quests = [] }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(() => initial ? toForm(initial) : BLANK);
   const [saving, setSaving] = useState(false);
@@ -59,12 +64,17 @@ export default function LocationModal({ initial, onSave, onClose }) {
         desc: form.desc.trim().split(/\n\n+/).map(p => p.trim()).filter(Boolean),
         secret: form.secret.trim(),
         imageUrl: form.imageUrl.trim(),
+        people: form.people,
+        quests: form.quests,
       });
       onClose();
     } finally {
       setSaving(false);
     }
   }
+
+  const charOptions = characters.map(c => ({ id: c.id, name: c.name || c.n, kind: 'character' }));
+  const questOptions = quests.map(q => ({ id: q.id, name: q.name, kind: 'quest' }));
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -164,6 +174,25 @@ export default function LocationModal({ initial, onSave, onClose }) {
                 <img src={form.imageUrl} alt="preview" onError={e => e.currentTarget.style.display = 'none'} />
               </div>
             )}
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Who is here</label>
+            <LinkedRecordPicker
+              items={form.people}
+              onChange={v => set('people', v)}
+              options={charOptions}
+              labelPlaceholder="Role (e.g. Innkeeper, Guard)"
+            />
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Linked Quests</label>
+            <LinkedRecordPicker
+              items={form.quests}
+              onChange={v => set('quests', v)}
+              options={questOptions}
+            />
           </div>
 
           <div className="frow fdm-note">
