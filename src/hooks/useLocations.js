@@ -148,22 +148,6 @@ function findNodeName(nodes, id) {
   return null;
 }
 
-function insertNode(tree, node, parentId) {
-  let inserted = false;
-  function recurse(nodes) {
-    return nodes.map(n => {
-      if (n.id === parentId) {
-        inserted = true;
-        return { ...n, children: [...(n.children || []), node] };
-      }
-      if (n.children) return { ...n, children: recurse(n.children) };
-      return n;
-    });
-  }
-  const result = recurse(tree);
-  return inserted ? result : [...result, node];
-}
-
 export const PARENT_OPTIONS = flattenTree(STATIC_TREE);
 
 export function useLocations() {

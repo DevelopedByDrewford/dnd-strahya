@@ -55,8 +55,6 @@ function groupByDay(notes) {
 }
 
 const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
-const SCOPE_LABEL = { pub: 'public', priv: 'private', dm: 'DM' };
-
 // ── sub-components ────────────────────────────────────────────────────────────
 
 function PresenceBar() {
@@ -74,23 +72,6 @@ function PresenceBar() {
       ))}
       <span className="act-pcount">{PRESENCE.length} here now</span>
     </div>
-  );
-}
-
-function RecordLink({ name, type, secondary }) {
-  const route = REC_ROUTES[type] || '#';
-  if (secondary) {
-    return (
-      <Link className="act-rlink sm" to={route}>
-        {name}
-      </Link>
-    );
-  }
-  return (
-    <Link className="act-rlink" to={route}>
-      <span className="act-ri" dangerouslySetInnerHTML={{ __html: REC_I[type] || '' }} />
-      {name}
-    </Link>
   );
 }
 
