@@ -27,33 +27,35 @@ service cloud.firestore {
 
     // ── timeline ──────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/timeline/{entryId} {
-      allow read:   if isDM() || (isSignedIn() && resource.data.hidden != true);
+      allow read:   if isDM() || resource.data.hidden != true;
       allow write:  if isSignedIn();
     }
 
     // ── locations ─────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/locations/{locationId} {
-      allow read:   if isDM() || (isSignedIn() && resource.data.visibility != 'hidden');
+      allow read:   if isDM() || resource.data.visibility != 'hidden';
       allow write:  if isSignedIn();
     }
 
     // ── characters ────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/characters/{characterId} {
-      allow read:   if isDM() || (isSignedIn() && resource.data.visibility != 'hidden');
+      allow read:   if isDM() || resource.data.visibility != 'hidden';
       // DMs manage NPCs; players can only write their own character (docId == uid)
       allow write:  if isDM() || (isSignedIn() && characterId == request.auth.uid);
     }
 
     // ── quests ────────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/quests/{questId} {
-      allow read:   if isDM() || (isSignedIn() && resource.data.visibility != 'hidden');
+      allow read:   if isDM() || resource.data.visibility != 'hidden';
       allow write:  if isSignedIn();
     }
 
     // ── notes ─────────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/notes/{noteId} {
-      // Players read pub+priv; DMs read everything including dm-scoped notes
-      allow read:   if isSignedIn() && (resource.data.scope != 'dm' || isDM());
+      // Guests read pub only; players also read their own priv; DMs read everything
+      allow read:   if resource.data.scope == 'pub'
+                    || (isSignedIn() && resource.data.scope == 'priv')
+                    || isDM();
       allow create: if isSignedIn();
       // Only the author or a DM can edit/delete
       allow update, delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isDM());

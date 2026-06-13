@@ -9,10 +9,10 @@ export function useActivity({ isDM = false, userId = null, max = 40 } = {}) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
-
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'notes');
-    const scopes = isDM ? ['pub', 'priv', 'dm'] : ['pub', 'priv'];
+    const scopes = userId
+      ? (isDM ? ['pub', 'priv', 'dm'] : ['pub', 'priv'])
+      : ['pub'];
     const q = query(col, where('scope', 'in', scopes), orderBy('createdAt', 'desc'), limit(max));
 
     return onSnapshot(q,

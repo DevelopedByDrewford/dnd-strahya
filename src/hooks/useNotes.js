@@ -12,10 +12,12 @@ export function useNotes(entityId, { isDM = false, userId = null } = {}) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!entityId || !userId) { setLoading(false); return; }
+    if (!entityId) { setLoading(false); return; }
 
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'notes');
-    const scopes = isDM ? ['pub', 'priv', 'dm'] : ['pub', 'priv'];
+    const scopes = userId
+      ? (isDM ? ['pub', 'priv', 'dm'] : ['pub', 'priv'])
+      : ['pub'];
     const q = query(col,
       where('entityId', '==', entityId),
       where('scope', 'in', scopes),
