@@ -186,7 +186,6 @@ export function useLocations({ isDM = false } = {}) {
 
   const mergedTree = useCallback(() => {
     if (firestoreLocs.length === 0) {
-      // Fall back to static tree until Firestore is seeded
       return filterStaticNodes(STATIC_TREE, isDM);
     }
 
@@ -203,7 +202,7 @@ export function useLocations({ isDM = false } = {}) {
     const roots = [];
     for (const loc of firestoreLocs) {
       const node = nodeMap[loc.id];
-      if (loc.parentId && nodeMap[loc.parentId]) {
+      if (loc.parentId && loc.parentId !== loc.id && nodeMap[loc.parentId]) {
         nodeMap[loc.parentId].children.push(node);
       } else {
         roots.push(node);

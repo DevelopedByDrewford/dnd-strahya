@@ -198,7 +198,7 @@ body.dm .trow.dmrow .tlbl { color: #f0b3ad; }
     border-right: 1px solid var(--line-2);
   }
   body.tree-open .tree { transform: none; box-shadow: 0 0 60px rgba(0,0,0,.7); }
-  .treeToggle { display: inline-flex; }
+  .treeToggle { display: inline-flex !important; }
 }
 
 @media (max-width: 760px) {
