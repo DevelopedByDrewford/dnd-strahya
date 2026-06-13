@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import QuestModal from './QuestModal';
-import NotesList from './NotesList';
+import Sidebar from '../components/Sidebar';
+import QuestModal from '../components/QuestModal';
+import NotesList from '../components/NotesList';
 import { QI, LOOT } from '../data/quests';
 import { useQuests } from '../hooks/useQuests';
 import './QuestsPage.css';

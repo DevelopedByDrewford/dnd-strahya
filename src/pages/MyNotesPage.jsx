@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import SignInRequired from './SignInRequired';
+import SignInRequired from '../components/SignInRequired';
 
 export default function MyNotesPage(props) {
   if (props.user) {

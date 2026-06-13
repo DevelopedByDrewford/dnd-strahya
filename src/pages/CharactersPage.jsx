@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import CharacterModal from './CharacterModal';
-import NotesList from './NotesList';
+import Sidebar from '../components/Sidebar';
+import CharacterModal from '../components/CharacterModal';
+import NotesList from '../components/NotesList';
 import { STATUS_ICONS } from '../data/characters';
 import { useCharacters } from '../hooks/useCharacters';
-import ImageLightbox from './ImageLightbox';
+import ImageLightbox from '../components/ImageLightbox';
 import './CharactersPage.css';
 
 const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';

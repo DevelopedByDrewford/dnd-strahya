@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import TimelineEntryModal from './TimelineEntryModal';
+import Sidebar from '../components/Sidebar';
+import TimelineEntryModal from '../components/TimelineEntryModal';
 import { TL_I } from '../data/timeline';
 import { useTimeline } from '../hooks/useTimeline';
 import './TimelinePage.css';

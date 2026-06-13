@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import Sidebar from '../components/Sidebar';
 import { useLoot } from '../hooks/useLoot';
 import { QI } from '../data/quests';
 import './LootPage.css';

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import LocationModal from './LocationModal';
-import NotesList from './NotesList';
+import Sidebar from '../components/Sidebar';
+import LocationModal from '../components/LocationModal';
+import NotesList from '../components/NotesList';
 import { ICONS } from '../data/locations';
 import { useLocations } from '../hooks/useLocations';
-import ImageLightbox from './ImageLightbox';
+import ImageLightbox from '../components/ImageLightbox';
 import './LocationsPage.css';
 
 // ---- icon helpers ----

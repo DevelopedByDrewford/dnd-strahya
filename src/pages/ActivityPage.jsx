@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import Sidebar from '../components/Sidebar';
 import { PRESENCE, REC_I, ACT_I } from '../data/activity';
 import { useActivity } from '../hooks/useActivity';
 import './ActivityPage.css';

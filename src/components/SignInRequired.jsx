@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import './MyCharacterPage.css';
+import '../pages/MyCharacterPage.css';
 
 const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
 const USER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';

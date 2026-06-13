@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import Sidebar from './Sidebar';
-import MyCharacterModal from './MyCharacterModal';
-import SignInRequired from './SignInRequired';
+import Sidebar from '../components/Sidebar';
+import MyCharacterModal from '../components/MyCharacterModal';
+import SignInRequired from '../components/SignInRequired';
 import { useMyCharacter } from '../hooks/useMyCharacter';
-import ImageLightbox from './ImageLightbox';
+import ImageLightbox from '../components/ImageLightbox';
 import './MyCharacterPage.css';
 
 const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
