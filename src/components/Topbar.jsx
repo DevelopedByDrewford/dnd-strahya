@@ -25,17 +25,24 @@ export default function Topbar({ onToggleNav, isDM, onToggleDM, profile, crumb, 
         Search the tome…
         <span className="kbd">⌘K</span>
       </div>
-      {(rightExtra || hasDM) && (
-        <div className="topbar-right">
-          {rightExtra}
-          {hasDM && (
-            <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </button>
-          )}
-        </div>
-      )}
+      <div className="topbar-right">
+        {rightExtra}
+        <button
+          className="btn icon ghost search-icon-mobile"
+          onClick={() => window.dispatchEvent(new Event('open-global-search'))}
+          aria-label="Search"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/>
+          </svg>
+        </button>
+        {hasDM && (
+          <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+            <span className={`toggle${isDM ? ' on' : ''}`} />
+            DM Mode
+          </button>
+        )}
+      </div>
     </div>
   );
 }

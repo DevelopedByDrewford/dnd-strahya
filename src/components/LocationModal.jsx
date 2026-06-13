@@ -40,7 +40,7 @@ function toForm(loc) {
   };
 }
 
-export default function LocationModal({ initial, onSave, onClose, characters = [], quests = [] }) {
+export default function LocationModal({ initial, onSave, onClose, characters = [], quests = [], isDM = false }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(() => initial ? toForm(initial) : BLANK);
   const [saving, setSaving] = useState(false);
@@ -195,16 +195,18 @@ export default function LocationModal({ initial, onSave, onClose, characters = [
             />
           </div>
 
-          <div className="frow fdm-note">
-            <label className="flabel">⛓ Secrets &amp; DM Notes</label>
-            <textarea
-              className="finput ftarea ftarea-sm"
-              rows={3}
-              value={form.secret}
-              onChange={e => set('secret', e.target.value)}
-              placeholder="Hidden truths, prep notes, connections to other locations…"
-            />
-          </div>
+          {isDM && (
+            <div className="frow fdm-note">
+              <label className="flabel">⛓ Secrets &amp; DM Notes</label>
+              <textarea
+                className="finput ftarea ftarea-sm"
+                rows={3}
+                value={form.secret}
+                onChange={e => set('secret', e.target.value)}
+                placeholder="Hidden truths, prep notes, connections to other locations…"
+              />
+            </div>
+          )}
 
           <div className="modal-ft">
             <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>

@@ -14,7 +14,7 @@ const BLANK = {
   links: [],
 };
 
-export default function QuestModal({ initial, onSave, onClose, characters = [], locations = [] }) {
+export default function QuestModal({ initial, onSave, onClose, characters = [], locations = [], isDM = false }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(() => initial ? {
     name: initial.name || '',
@@ -57,7 +57,7 @@ export default function QuestModal({ initial, onSave, onClose, characters = [], 
         status: form.status,
         by: form.by.trim() || '—',
         giverId: form.giverId || null,
-        giver: giver?.name || form.giverId || '—',
+        giver: giver?.name || giver?.n || form.giverId || '—',
         visibility: form.visibility,
         desc: form.desc.trim(),
         rewards: form.rewards.split(',').map(r => r.trim()).filter(Boolean),
@@ -192,16 +192,18 @@ export default function QuestModal({ initial, onSave, onClose, characters = [], 
             />
           </div>
 
-          <div className="frow fdm-note">
-            <label className="flabel">⛓ Secrets &amp; DM Notes</label>
-            <textarea
-              className="finput ftarea ftarea-sm"
-              rows={3}
-              value={form.secret}
-              onChange={e => set('secret', e.target.value)}
-              placeholder="Hidden objectives, true nature, plot connections…"
-            />
-          </div>
+          {isDM && (
+            <div className="frow fdm-note">
+              <label className="flabel">⛓ Secrets &amp; DM Notes</label>
+              <textarea
+                className="finput ftarea ftarea-sm"
+                rows={3}
+                value={form.secret}
+                onChange={e => set('secret', e.target.value)}
+                placeholder="Hidden objectives, true nature, plot connections…"
+              />
+            </div>
+          )}
 
           <div className="modal-ft">
             <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import LinkedRecordPicker from './LinkedRecordPicker';
 
-const GROUPS = ['The Party', 'Allies', 'Enemies', 'Hidden'];
+const GROUPS = ['The Party', 'Camp Companion', 'Allies', 'Neutral', 'Enemies', 'Hidden'];
 
 const BLANK = {
   name: '',
@@ -17,7 +17,7 @@ const BLANK = {
   rels: [],
 };
 
-export default function CharacterModal({ initial, onSave, onClose, allCharacters = [], locations = [] }) {
+export default function CharacterModal({ initial, onSave, onClose, allCharacters = [], locations = [], isDM = false }) {
   const isEdit = !!initial;
   const [form, setForm] = useState(() => initial ? {
     name: initial.name || '',
@@ -188,16 +188,18 @@ export default function CharacterModal({ initial, onSave, onClose, allCharacters
             />
           </div>
 
-          <div className="frow fdm-note">
-            <label className="flabel">⛓ Secrets &amp; DM Notes</label>
-            <textarea
-              className="finput ftarea ftarea-sm"
-              rows={3}
-              value={form.secret}
-              onChange={e => set('secret', e.target.value)}
-              placeholder="Hidden motives, true nature, plot connections…"
-            />
-          </div>
+          {isDM && (
+            <div className="frow fdm-note">
+              <label className="flabel">⛓ Secrets &amp; DM Notes</label>
+              <textarea
+                className="finput ftarea ftarea-sm"
+                rows={3}
+                value={form.secret}
+                onChange={e => set('secret', e.target.value)}
+                placeholder="Hidden motives, true nature, plot connections…"
+              />
+            </div>
+          )}
 
           <div className="modal-ft">
             <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>

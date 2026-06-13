@@ -48,7 +48,7 @@ const FeedItem = ({ initials, dmAvatar, children, when, preview }) => (
 const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
 
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
-  const { activity } = useActivity({ isDM, userId: user?.uid, max: 8 });
+  const { activity } = useActivity({ isDM, userId: user?.uid, max: 5 });
   const { entries: timelineEntries } = useTimeline(CAMPAIGN_ID, { isDM });
   const { mergedRoster } = useCharacters({ isDM });
   const { locations } = useLocations({ isDM });
@@ -107,7 +107,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 </Link>
                 <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5l8-2 8 2v6c0 5-4 8-8 10-4-2-8-5-8-10z"/></svg>}
-                  label="Factions" count={5} sub="Powers in the land"
+                  label="Factions" count={'Coming Soon'} sub="Powers in the land"
                 />
                 <Link to="/quests">
                   <HubTile
@@ -123,7 +123,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 </Link>
                 <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>}
-                  label="Lore" count={23} sub="Histories & omens"
+                  label="Lore" count={'Coming Soon'} sub="Histories & omens"
                 />
                 {/* <HubTile
                   icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2l2.5 5 5.5.8-4 3.9.9 5.5L12 20l-4.9 2.2.9-5.5-4-3.9 5.5-.8z"/></svg>}

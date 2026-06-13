@@ -22,7 +22,8 @@ service cloud.firestore {
 
     // ── user profiles ─────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      allow read:  if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // ── timeline ──────────────────────────────────────────────────────────────
@@ -73,6 +74,12 @@ service cloud.firestore {
     // ── DM-only loot secrets ──────────────────────────────────────────────────
     match /campaigns/{campaignId}/lootDm/{itemId} {
       allow read, write: if isDM();
+    }
+
+    // ── presence ──────────────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/presence/{userId} {
+      allow read:   if isSignedIn();
+      allow write:  if isSignedIn() && request.auth.uid == userId;
     }
   }
 }

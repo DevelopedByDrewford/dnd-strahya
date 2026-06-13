@@ -114,7 +114,7 @@ function PersonCard({ person }) {
 }
 
 // ---- Location detail ----
-function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, onImageClick }) {
+function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, onImageClick, allQuests = [] }) {
 
   const visChip = loc.visibility === 'hidden'
     ? <span className="chip sm tag-dm dm-only" style={{ '--d': 'inline-flex' }}>⛓ Hidden record</span>
@@ -177,7 +177,7 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, 
           )}
 
           {/* Sub-locations */}
-          {loc.subs.length > 0 && (
+          {/* {loc.subs.length > 0 && (
             <div className="sec">
               <div className="sec-head">
                 <h3>Within this place</h3>
@@ -187,7 +187,7 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, 
                 {loc.subs.map(s => <SubCard key={s.id} sub={s} onSelect={onSelect} />)}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Who is here */}
           {loc.people.length > 0 && (
@@ -205,6 +205,8 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, 
             {loc.quests.length > 0
               ? loc.quests.map((q, i) => {
                 const qname = q.name || q.n || '?';
+                const live = allQuests.find(lq => lq.id === q.id);
+                const done = live?.status === 'completed';
                 return (
                   <div key={i} className="qrow">
                     <div className="qrow-ic" dangerouslySetInnerHTML={{ __html: ICONS.quest }} />
@@ -214,7 +216,10 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, 
                         : <div className="qrow-name">{qname}</div>
                       }
                     </div>
-                    <span className="chip sm gold">Active</span>
+                    {done
+                      ? <span className="chip sm" style={{ color: 'var(--live)', borderColor: 'rgba(127,160,95,.4)' }}>✓ Completed</span>
+                      : <span className="chip sm gold">Active</span>
+                    }
                   </div>
                 );
               })
@@ -382,7 +387,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
 
             {/* Detail panel */}
             <section className="detail">
-              <LocationDetail key={selectedId} loc={loc} isDM={isDM} onSelect={selectLocation} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} onImageClick={setLightbox} />
+              <LocationDetail key={selectedId} loc={loc} isDM={isDM} onSelect={selectLocation} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} onImageClick={setLightbox} allQuests={quests} />
             </section>
           </div>
         </div>
@@ -393,6 +398,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
           onClose={() => setModalOpen(false)}
           characters={allChars}
           quests={quests}
+          isDM={isDM}
         />
       )}
       {editModal && (
@@ -402,6 +408,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
           onClose={() => setEditModal(null)}
           characters={allChars}
           quests={quests}
+          isDM={isDM}
         />
       )}
       <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />

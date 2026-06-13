@@ -1,0 +1,41 @@
+.pm-box { max-width: 420px; width: 100%; }
+
+.pm-hcount {
+  font-size: 13px; font-weight: 400; color: var(--live);
+  margin-left: 10px; vertical-align: middle;
+}
+
+.pm-list { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 2px; }
+
+.pm-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 14px; border-radius: 12px;
+  background: var(--bg-2); border: 1px solid var(--line);
+  transition: border-color .14s;
+}
+.pm-card.pm-online { border-color: rgba(127,160,95,.25); }
+
+.pm-av {
+  position: relative; flex: none;
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--line-2);
+  background: linear-gradient(160deg, #3a2f27, #221a15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 16px; color: var(--ink); overflow: visible;
+}
+.pm-av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+.pm-dot {
+  position: absolute; bottom: 0; right: 0;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--line-2); border: 2px solid var(--bg-1);
+}
+.pm-dot.on { background: var(--live); box-shadow: 0 0 6px rgba(127,160,95,.7); }
+
+.pm-info { flex: 1; min-width: 0; }
+.pm-name { font-size: 14px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 7px; }
+.pm-you { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); background: rgba(214,171,91,.12); border: 1px solid rgba(214,171,91,.25); border-radius: 4px; padding: 1px 5px; }
+.pm-meta { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.pm-role { font-size: 11.5px; color: var(--ink-3); }
+.pm-status { font-size: 11.5px; color: var(--ink-3); }
+.pm-status.online { color: var(--live); }

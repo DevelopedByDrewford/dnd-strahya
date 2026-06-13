@@ -19,7 +19,15 @@
 }
 .lrp-remove:hover { color: var(--blood-2); }
 
-.lrp-add { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; }
-.lrp-add select { flex: 1; min-width: 0; }
-.lrp-add input { flex: 1; min-width: 120px; }
-.lrp-add button { flex: none; white-space: nowrap; }
+.lrp-trigger {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 10px; border-radius: 9px;
+  background: none; border: 1px dashed var(--line-2);
+  color: var(--ink-3); font-size: 13px; cursor: pointer; transition: .14s;
+}
+.lrp-trigger:hover { background: var(--bg-2); color: var(--ink-2); border-color: var(--line); }
+
+.lrp-new { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; }
+.lrp-new select { flex: 1; min-width: 0; }
+.lrp-new input { flex: 1; min-width: 120px; }
+.lrp-cancel { flex: none; }

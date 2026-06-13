@@ -67,8 +67,13 @@
 
 .rgrp-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 14px 4px;
+  padding: 8px 14px 4px; width: 100%; background: none; border: none;
+  cursor: pointer; font-family: var(--body); transition: background .12s;
 }
+.rgrp-head:hover { background: rgba(255,255,255,.03); }
+.rgrp-right { display: flex; align-items: center; gap: 7px; }
+.rgrp-arrow { font-size: 8px; color: var(--ink-3); transition: transform .18s; }
+.rgrp-arrow.open { transform: rotate(90deg); }
 
 .rcard {
   display: flex; align-items: center; gap: 10px;

@@ -406,6 +406,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
           onClose={() => setModal(null)}
           characters={allChars}
           locations={locations}
+          isDM={isDM}
         />
       )}
     </div>

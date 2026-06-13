@@ -22,7 +22,12 @@
 .act-head h1 { font-size: 32px; line-height: 1.04; }
 
 /* ---- presence bar ---- */
-.act-presbar { display: flex; align-items: center; gap: 7px; }
+.act-presbar {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: none; cursor: pointer; padding: 4px 8px 4px 0;
+  border-radius: 8px; transition: background .14s;
+}
+.act-presbar:hover { background: var(--bg-2); }
 .act-pav {
   width: 30px; height: 30px; border-radius: 50%;
   border: 2px solid var(--line-2); margin-left: -9px;

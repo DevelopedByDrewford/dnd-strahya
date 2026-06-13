@@ -191,6 +191,16 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
   const [modal, setModal] = useState(searchParams.get('new') === 'true' ? { mode: 'create' } : null);
   const [seeding, setSeeding] = useState(false);
   const [lightbox, setLightbox] = useState(null);
+  const [collapsedGroups, setCollapsedGroups] = useState(new Set());
+
+  function toggleGroup(grpName) {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(grpName)) next.delete(grpName);
+      else next.add(grpName);
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (searchParams.get('new') !== 'true') return;
@@ -306,13 +316,18 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
               </div>
             )}
             <div className="roster-groups">
-              {filteredRoster.map(grp => (
+              {filteredRoster.map(grp => {
+                const collapsed = !q && collapsedGroups.has(grp.grp);
+                return (
                 <div key={grp.grp} className={grp.dm ? 'dm-only' : undefined}>
-                  <div className="rgrp-head">
+                  <button className="rgrp-head" onClick={() => toggleGroup(grp.grp)}>
                     <span className="eyebrow">{grp.grp}</span>
-                    <span className="dim tiny">{grp.items.length}</span>
-                  </div>
-                  {grp.items.map(it => (
+                    <div className="rgrp-right">
+                      <span className="dim tiny">{grp.items.length}</span>
+                      <span className={`rgrp-arrow${collapsed ? '' : ' open'}`}>▶</span>
+                    </div>
+                  </button>
+                  {!collapsed && grp.items.map(it => (
                     <div
                       key={it.id}
                       className={`rcard${selectedId === it.id ? ' sel' : ''}${it.dm ? ' dm-only' : ''}`}
@@ -329,7 +344,8 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
                     </div>
                   ))}
                 </div>
-              ))}
+              );
+              })}
             </div>
           </aside>
 
@@ -348,6 +364,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
           onClose={() => setModal(null)}
           allCharacters={allChars}
           locations={locations}
+          isDM={isDM}
         />
       )}
       <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />

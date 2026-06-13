@@ -12,10 +12,12 @@ import ActivityPage from './pages/ActivityPage';
 import SignInModal from './components/SignInModal';
 import GlobalSearch from './components/GlobalSearch';
 import { useAuth } from './hooks/useAuth';
+import { usePresenceWriter } from './hooks/usePresence';
 import './styles/tome.css';
 
 function App() {
   const { user, profile, signIn, signOut, updateProfile } = useAuth();
+  usePresenceWriter({ user, profile });
   const [isDM, setIsDM] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);

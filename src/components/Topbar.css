@@ -42,6 +42,9 @@
   .topbar { padding: 11px 18px; }
 }
 
+.topbar .search-icon-mobile { display: none; }
+
 @media (max-width: 420px) {
-  .search { display: none; }
+  .topbar .search { display: none; }
+  .topbar .search-icon-mobile { display: inline-flex; }
 }

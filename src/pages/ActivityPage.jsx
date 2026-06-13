@@ -1,7 +1,10 @@
 import { useSearchParams, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
-import { PRESENCE, REC_I, ACT_I } from '../data/activity';
+import { useState } from 'react';
+import { REC_I, ACT_I } from '../data/activity';
+import { usePresenceList } from '../hooks/usePresence';
+import PlayersModal from '../components/PlayersModal';
 import { useActivity } from '../hooks/useActivity';
 import './ActivityPage.css';
 
@@ -56,21 +59,29 @@ function groupByDay(notes) {
 const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
 // ── sub-components ────────────────────────────────────────────────────────────
 
-function PresenceBar() {
+const PRESENCE_COLORS = ['var(--gold-2)', 'var(--live)', '#7ba4c4', '#c4907b', '#a47bc4', '#c4b87b'];
+function presenceColor(uid) {
+  let h = 0;
+  for (const c of uid) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
+  return PRESENCE_COLORS[Math.abs(h) % PRESENCE_COLORS.length];
+}
+
+function PresenceBar({ userId, onOpen }) {
+  const presenceList = usePresenceList({ userId });
+  if (!presenceList.length) return null;
   return (
-    <div className="act-presbar">
-      {PRESENCE.map((p, i) => (
+    <button className="act-presbar" onClick={onOpen} title="See all players">
+      {presenceList.map(p => (
         <span
-          key={p.n}
+          key={p.uid}
           className="act-pav"
-          style={{ borderColor: p.color }}
-          title={p.n}
+          style={{ borderColor: p.uid === userId ? 'var(--gold-2)' : presenceColor(p.uid) }}
         >
-          {p.n[0]}
+          {(p.displayName || '?')[0].toUpperCase()}
         </span>
       ))}
-      <span className="act-pcount">{PRESENCE.length} here now</span>
-    </div>
+      <span className="act-pcount">{presenceList.length} here now</span>
+    </button>
   );
 }
 
@@ -144,12 +155,14 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCat = VALID_FILTERS.has(searchParams.get('filter')) ? searchParams.get('filter') : 'all';
   const { activity, loading } = useActivity({ isDM, userId: user?.uid });
+  const [playersOpen, setPlayersOpen] = useState(false);
 
   function setFilter(key) {
     setSearchParams(key === 'all' ? {} : { filter: key }, { replace: true });
   }
 
   return (
+    <>
     <div className="act-app">
       <div className="scrim" onClick={onCloseNav} />
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
@@ -170,7 +183,7 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
                 <div className="eyebrow">The campaign, as it unfolds</div>
                 <h1>Activity</h1>
               </div>
-              <PresenceBar />
+              <PresenceBar userId={user?.uid} onOpen={() => setPlayersOpen(true)} />
             </div>
 
             {/* Filter bar */}
@@ -196,5 +209,9 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
           </div>
         </div>
       </div>
+      {playersOpen && (
+        <PlayersModal currentUserId={user?.uid} onClose={() => setPlayersOpen(false)} />
+      )}
+    </>
   );
 }

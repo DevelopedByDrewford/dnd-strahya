@@ -2,23 +2,26 @@ import { useState } from 'react';
 import './LinkedRecordPicker.css';
 
 // options: [{ id, name, kind }]  kind = 'character' | 'location' | 'quest'
-// items:   [{ id, name, kind, label? }]  label = optional relationship note (type / role)
+// items:   [{ id, name, kind, label? }]
 export default function LinkedRecordPicker({ items = [], onChange, options = [], labelPlaceholder }) {
-  const [pendingId, setPendingId] = useState('');
+  const [adding, setAdding] = useState(false);
   const [pendingLabel, setPendingLabel] = useState('');
 
   const available = options.filter(o => !items.find(it => it.id === o.id));
 
-  function add() {
-    const opt = available.find(o => o.id === pendingId);
+  function handleSelect(e) {
+    const id = e.target.value;
+    if (!id) return;
+    const opt = available.find(o => o.id === id);
     if (!opt) return;
     onChange([...items, { id: opt.id, name: opt.name, kind: opt.kind, label: pendingLabel.trim() }]);
-    setPendingId('');
     setPendingLabel('');
+    setAdding(false);
   }
 
-  function remove(id) {
-    onChange(items.filter(it => it.id !== id));
+  function cancel() {
+    setAdding(false);
+    setPendingLabel('');
   }
 
   const kindLabel = { character: 'Character', location: 'Location', quest: 'Quest' };
@@ -34,42 +37,50 @@ export default function LinkedRecordPicker({ items = [], onChange, options = [],
                 <div className="lrp-item-name">{it.name}</div>
                 {it.label && <div className="lrp-item-label">{it.label}</div>}
               </div>
-              <button type="button" className="lrp-remove" onClick={() => remove(it.id)} aria-label="Remove">×</button>
+              <button type="button" className="lrp-remove" onClick={() => onChange(items.filter(it2 => it2.id !== it.id))} aria-label="Remove">×</button>
             </div>
           ))}
         </div>
       )}
 
-      <div className="lrp-add">
-        <select
-          className="finput"
-          value={pendingId}
-          onChange={e => setPendingId(e.target.value)}
-        >
-          <option value="">— Select record —</option>
-          {['character', 'location', 'quest'].map(k =>
-            available.filter(o => o.kind === k).length > 0 && (
-              <optgroup key={k} label={kindLabel[k] + 's'}>
-                {available.filter(o => o.kind === k).map(o => (
-                  <option key={o.id} value={o.id}>{o.name}</option>
-                ))}
-              </optgroup>
-            )
+      {adding ? (
+        <div className="lrp-new">
+          {labelPlaceholder && (
+            <input
+              className="finput"
+              placeholder={labelPlaceholder}
+              value={pendingLabel}
+              onChange={e => setPendingLabel(e.target.value)}
+              onKeyDown={e => e.key === 'Escape' && cancel()}
+              autoFocus
+            />
           )}
-        </select>
-        {labelPlaceholder && pendingId && (
-          <input
+          <select
             className="finput"
-            placeholder={labelPlaceholder}
-            value={pendingLabel}
-            onChange={e => setPendingLabel(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), add())}
-          />
-        )}
-        <button type="button" className="btn sm" onClick={add} disabled={!pendingId}>
-          Add
-        </button>
-      </div>
+            value=""
+            onChange={handleSelect}
+            autoFocus={!labelPlaceholder}
+          >
+            <option value="">— Select record —</option>
+            {['character', 'location', 'quest'].map(k =>
+              available.filter(o => o.kind === k).length > 0 && (
+                <optgroup key={k} label={kindLabel[k] + 's'}>
+                  {available.filter(o => o.kind === k).map(o => (
+                    <option key={o.id} value={o.id}>{o.name}</option>
+                  ))}
+                </optgroup>
+              )
+            )}
+          </select>
+          <button type="button" className="btn sm ghost lrp-cancel" onClick={cancel}>✕</button>
+        </div>
+      ) : (
+        available.length > 0 && (
+          <button type="button" className="lrp-trigger" onClick={() => setAdding(true)}>
+            + New record…
+          </button>
+        )
+      )}
     </div>
   );
 }

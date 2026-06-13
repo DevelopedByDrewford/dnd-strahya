@@ -215,7 +215,12 @@ export function useCharacters({ isDM = false } = {}) {
         firestore: true,
       });
     }
-    return Object.values(groupMap);
+    const GROUP_ORDER = ['Hidden', 'The Party', 'Camp Companion', 'Allies', 'Neutral', 'Enemies'];
+    return Object.values(groupMap).sort((a, b) => {
+      const ai = GROUP_ORDER.indexOf(a.grp);
+      const bi = GROUP_ORDER.indexOf(b.grp);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
   }, [firestoreChars]);
 
   const getChar = useCallback((id) => {
