@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { PRESENCE, REC_I, ACT_I, REC_ROUTES } from '../data/activity';
+import { PRESENCE, REC_I, ACT_I } from '../data/activity';
 import { useActivity } from '../hooks/useActivity';
 import './ActivityPage.css';
 
