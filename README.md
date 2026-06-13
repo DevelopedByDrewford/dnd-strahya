@@ -1,70 +1,71 @@
-# Getting Started with Create React App
+# The Tome — Curse of Strahd Campaign Manager
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React + Firebase app for managing a D&D campaign. Built for one DM and multiple players.
 
-## Available Scripts
+## Roles
 
-In the project directory, you can run:
+| Role | How it's set |
+|------|-------------|
+| **Visitor** | Not signed in |
+| **Player** | Signed in; default on first login (`role: 'player'` in `/users/{uid}`) |
+| **DM** | Signed in with `role: 'dm'` in their user document |
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Permissions Matrix
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**R** = Read · **C** = Create · **U** = Update · **D** = Delete · **—** = no access
 
-### `npm test`
+| Record | Visitor | Player | DM |
+|--------|---------|--------|----|
+| **Characters** (visibility: `players`) | — | R | R · C · U · D |
+| **Characters** (visibility: `hidden`) | — | — | R · C · U · D |
+| **My Character** (own PC) | — | R · C · U | R · C · U · D |
+| **Locations** (visibility: `players`) | — | R · C · U | R · C · U · D |
+| **Locations** (visibility: `hidden`) | — | — | R · C · U · D |
+| **Quests** (visibility: `players`) | — | R · C · U | R · C · U · D |
+| **Quests** (visibility: `hidden`) | — | — | R · C · U · D |
+| **Notes** (scope: `pub`) | R | R · C | R · C · U · D |
+| **Notes** (scope: `priv`) | — | R · C (own only) | R · C · U · D |
+| **Notes** (scope: `dm`) | — | — | R · C · U · D |
+| **Timeline** (hidden: `false`) | — | R · C · U | R · C · U · D |
+| **Timeline** (hidden: `true`) | — | — | R · C · U · D |
+| **Loot** (visibility: `public`) | — | R · C · U | R · C · U · D |
+| **Loot** (visibility: `hidden`) | — | — | R · C · U · D |
+| **Loot DM Secrets** (`lootDm/`) | — | — | R · C · U · D |
+| **User Profile** | — | R (own + others) | R · all |
+| **Presence** | — | R (all) · W (own) | R · W · all |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## How Records Are Created
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+All writes go directly to Firestore via the Firebase SDK — there is no REST API layer.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Record | Method | Notes |
+|--------|--------|-------|
+| **Characters / NPCs** | `addDoc(collection(db, 'campaigns/{id}/characters'), data)` | Includes `authorId` and `createdAt: serverTimestamp()`. `sortOrder` is auto-calculated at save time. |
+| **My Character (PC)** | `setDoc(doc(db, '…/characters', userId), data, { merge: true })` | Doc ID = the player's Firebase UID. Players can only write their own document. |
+| **Locations** | `addDoc(…/locations, data)` | `parentId` links to a parent location for hierarchy. `sortOrder` is max existing + 1. |
+| **Quests** | `addDoc(…/quests, data)` | First load triggers `writeBatch()` seed data if collection is empty. |
+| **Notes** | `addDoc(…/notes, data)` | `entityId` + `entityType` attach the note to any record. `scope` must be `'pub'`, `'priv'`, or `'dm'`. |
+| **Timeline Entries** | `addDoc(…/timeline, data)` | `order: Date.now()` controls sort. Seed entries are batch-written on first load. |
+| **Loot** | `addDoc(…/loot, data)` | If a DM note is included, a parallel `setDoc(…/lootDm/{itemId}, { trueIdentity })` is written to a separate DM-only collection. |
+| **User Profile** | `setDoc(…/users/{uid}, data)` | Auto-created on first sign-in via `onAuthStateChanged`. Default `role: 'player'`. |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Visibility & Scope Fields
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Most records use a `visibility` field to control player access:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- `'players'` — visible to all signed-in users
+- `'hidden'` — DM-only
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Notes use a `scope` field instead:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- `'pub'` — public; readable even by visitors
+- `'priv'` — readable only by the author and the DM
+- `'dm'` — DM-only
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+DM-only content within a record (e.g., `character.secret`, `quest.secret`) is stored on the document itself but gated at the Firestore rules level so players never receive those fields. Loot is the exception — its DM notes are stored in a separate `lootDm/` collection entirely.
