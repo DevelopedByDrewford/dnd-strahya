@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, where, serverTimestamp, writeBatch,
+  onSnapshot, query, where, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { TIMELINE as SEED_DATA } from '../data/timeline';
@@ -16,21 +16,26 @@ export function useTimeline(campaignId, { isDM = false } = {}) {
 
     const col = collection(db, 'campaigns', campaignId, 'timeline');
     const q = isDM
-      ? query(col, orderBy('order', 'desc'))
-      : query(col, where('hidden', '==', false), orderBy('order', 'desc'));
+      ? col
+      : query(col, where('hidden', '==', false));
 
+    let active = true;
     const unsub = onSnapshot(
       q,
       snap => {
-        setEntries(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        if (!active) return;
+        const es = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        es.sort((a, b) => (b.order || 0) - (a.order || 0));
+        setEntries(es);
         setLoading(false);
       },
       err => {
+        if (!active) return;
         setLoading(false);
         setError(err);
       },
     );
-    return unsub;
+    return () => { active = false; unsub(); };
   }, [campaignId, isDM]);
 
   async function addEntry(data) {

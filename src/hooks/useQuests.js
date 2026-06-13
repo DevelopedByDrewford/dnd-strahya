@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   collection, addDoc, updateDoc, deleteDoc,
-  doc, onSnapshot, query, orderBy, where, serverTimestamp, writeBatch,
+  doc, onSnapshot, query, where, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -102,18 +102,22 @@ export function useQuests({ userId = null, isDM = false } = {}) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let active = true;
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'quests');
     const q = isDM
-      ? query(col, orderBy('createdAt', 'asc'))
-      : query(col, where('visibility', '==', 'players'), orderBy('createdAt', 'asc'));
+      ? col
+      : query(col, where('visibility', '==', 'players'));
     const unsub = onSnapshot(q,
       snap => {
-        setFirestoreQuests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        if (!active) return;
+        const qs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        qs.sort((a, b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0));
+        setFirestoreQuests(qs);
         setLoading(false);
       },
-      err => { setLoading(false); setError(err); },
+      err => { if (!active) return; setLoading(false); setError(err); },
     );
-    return unsub;
+    return () => { active = false; unsub(); };
   }, [isDM]);
 
   const quests = useMemo(() => firestoreQuests.map(q => ({

@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { useActivity } from '../hooks/useActivity';
 import { useTimeline } from '../hooks/useTimeline';
+import { useCharacters } from '../hooks/useCharacters';
+import { useLocations } from '../hooks/useLocations';
+import { useQuests } from '../hooks/useQuests';
 import './HomePage.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
@@ -45,6 +48,14 @@ const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const { activity } = useActivity({ isDM, userId: user?.uid, max: 8 });
   const { entries: timelineEntries } = useTimeline(CAMPAIGN_ID, { isDM });
+  const { mergedRoster } = useCharacters({ isDM });
+  const { locations } = useLocations({ isDM });
+  const { quests } = useQuests({ isDM, userId: user?.uid });
+
+  const locCount  = locations.length;
+  const charCount = mergedRoster.flatMap(g => g.items).length;
+  const questCount = quests.length;
+
   const latestEntry = timelineEntries.find(e => !e.hidden) || null;
 
   return (
@@ -58,7 +69,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
               <button className="btn icon ghost hamburger" onClick={onToggleNav}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
               </button>
-              <span className="crumb">Home › <b>Barovia</b></span>
+              <span className="crumb">Campaign › <b>Home</b></span>
             </div>
             <div className="search" role="button" tabIndex={0}
               onClick={() => window.dispatchEvent(new Event('open-global-search'))}
@@ -86,9 +97,9 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 <div className="moon">734 · Waning of the Crow Moon</div>
               </div>
               <div className="stats">
-                <div className="stat"><b>12</b><span>Sessions</span></div>
-                <div className="stat"><b>47</b><span>Souls</span></div>
-                <div className="stat"><b>6</b><span>Quests</span></div>
+                <div className="stat"><b>{timelineEntries.length || '—'}</b><span>Sessions</span></div>
+                <div className="stat"><b>{charCount || '—'}</b><span>Souls</span></div>
+                <div className="stat"><b>{questCount || '—'}</b><span>Quests</span></div>
               </div>
             </div>
 
@@ -98,13 +109,13 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 <Link to='/locations'>
                   <HubTile
                     icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 21s-7-5.6-7-11a7 7 0 1114 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>}
-                    label="Locations" count={9} sub="Vallaki, Krezk & beyond"
+                    label="Locations" count={locCount || '—'} sub="Vallaki, Krezk & beyond"
                   />
                 </Link>
                 <Link to='/characters'>
                   <HubTile
                     icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>}
-                    label="Characters" count={47} sub="Allies & enemies"
+                    label="Characters" count={charCount || '—'} sub="Allies & enemies"
                   />
                 </Link>
                 <HubTile
@@ -114,7 +125,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                 <Link to="/quests">
                   <HubTile
                     icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg>}
-                    label="Quests" count={6} sub="2 nearing deadline"
+                    label="Quests" count={questCount || '—'} sub="Active & completed"
                   />
                 </Link>
                 <Link to="/loot">

@@ -71,11 +71,25 @@ export default function GlobalSearch({ isDM, user, profile }) {
   }, []);
 
   useEffect(() => {
+    if (!open) return;
+
     if (open) {
       setQuery('');
       setActiveIdx(0);
       requestAnimationFrame(() => inputRef.current?.focus());
     }
+
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            close();
+        }
+    }
+
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+        window.removeEventListener('keydown', handleEsc);
+    };
   }, [open]);
 
   useEffect(() => { setActiveIdx(0); }, [query]);

@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
+import { lang } from '../data/lang';
+import { useCharacters } from '../hooks/useCharacters';
+import { useLocations } from '../hooks/useLocations';
+import { useQuests } from '../hooks/useQuests';
 import './Sidebar.css';
 
 const CREATE_ITEMS = [
@@ -47,10 +51,10 @@ const NAV_GROUPS = [
   {
     group: 'The World',
     items: [
-      { to: '/locations', label: 'Locations', count: 9, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 21s-7-5.6-7-11a7 7 0 1114 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> },
-      { to: '/characters', label: 'Characters', count: 47, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> },
-      { to: '/quests', label: 'Quests', count: 6, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg> },
-      { to: '/loot', label: 'Loot', count: 18, icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg> },
+      { to: '/locations', label: 'Locations', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 21s-7-5.6-7-11a7 7 0 1114 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> },
+      { to: '/characters', label: 'Characters', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> },
+      { to: '/quests', label: 'Quests', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg> },
+      { to: '/loot', label: 'Loot', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg> },
     ],
   },
   {
@@ -66,6 +70,16 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
   const [showProfile, setShowProfile] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const navigate = useNavigate();
+
+  const { mergedRoster } = useCharacters({ isDM });
+  const { locations } = useLocations({ isDM });
+  const { quests } = useQuests({ isDM, userId: user?.uid });
+
+  const liveCounts = useMemo(() => ({
+    '/locations':  locations.length  || null,
+    '/characters': mergedRoster.flatMap(g => g.items).length || null,
+    '/quests':     quests.length     || null,
+  }), [locations, mergedRoster, quests]);
 
   function handleCreate(to) {
     setShowCreate(false);
@@ -91,8 +105,9 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
         {NAV_GROUPS.map(({ group, items }) => (
           <div key={group}>
             <div className="grp">{group}</div>
-            {items.map(({ to, end, label, count, icon }) =>
-              to ? (
+            {items.map(({ to, end, label, count, icon }) => {
+              const displayCount = to && to in liveCounts ? liveCounts[to] : count;
+              return to ? (
                 <NavLink
                   key={label}
                   to={to}
@@ -102,23 +117,23 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
                 >
                   {icon}
                   {label}
-                  {count != null && <span className="count">{count}</span>}
+                  {displayCount != null && <span className="count">{displayCount}</span>}
                 </NavLink>
               ) : (
                 <div key={label} className="nav">
                   {icon}
                   {label}
-                  {count != null && <span className="count">{count}</span>}
+                  {displayCount != null && <span className="count">{displayCount}</span>}
                 </div>
-              )
-            )}
+              );
+            })}
           </div>
         ))}
 
         <div className="grp dm-only" style={{ '--d': 'block' }}>Admin · DM</div>
         <button className="nav dm-only" style={{ '--d': 'flex' }} onClick={() => setShowCreate(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 5v14M5 12h14"/></svg>
-          Create / Edit
+          {lang.add_new}
         </button>
 
         <div className={`me${user ? ' me-clickable' : ''}`} onClick={user ? () => setShowProfile(true) : undefined}>
@@ -168,7 +183,7 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
         <div className="create-overlay" onClick={() => setShowCreate(false)}>
           <div className="create-modal" onClick={e => e.stopPropagation()}>
             <div className="create-hd">
-              <span>Create</span>
+              <span>{lang.add_new}</span>
               <button className="btn icon ghost" onClick={() => setShowCreate(false)} aria-label="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>

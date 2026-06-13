@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   collection, doc, addDoc, setDoc, updateDoc,
-  onSnapshot, query, where, orderBy, serverTimestamp,
+  onSnapshot, query, where, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { LOOT } from '../data/quests';
@@ -37,24 +37,28 @@ export function useLoot(campaignId, { isDM = false, userId = 'Tessa' } = {}) {
 
     const col = collection(db, 'campaigns', campaignId, 'loot');
     const q = isDM
-      ? query(col, orderBy('createdAt', 'desc'))
-      : query(col, where('recordVisibility', '==', 'public'), orderBy('createdAt', 'desc'));
+      ? col
+      : query(col, where('recordVisibility', '==', 'public'));
 
+    let active = true;
     const unsub = onSnapshot(
       q,
       snap => {
+        if (!active) return;
         if (!snap.empty) {
-          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          const loot = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          loot.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+          setItems(loot);
         }
         setLoading(false);
       },
       err => {
-        // Keep showing static data if Firestore is unavailable / not yet configured.
+        if (!active) return;
         setLoading(false);
         setError(err);
       },
     );
-    return unsub;
+    return () => { active = false; unsub(); };
   }, [campaignId, isDM]);
 
   const totalGp = items.reduce((sum, it) => sum + parseGp(it.value), 0);

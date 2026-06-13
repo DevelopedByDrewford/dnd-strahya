@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   collection, addDoc, updateDoc, deleteDoc,
-  doc, onSnapshot, query, orderBy, where, serverTimestamp, writeBatch,
+  doc, onSnapshot, query, where, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -179,18 +179,22 @@ export function useCharacters({ isDM = false } = {}) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let active = true;
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'characters');
     const q = isDM
-      ? query(col, orderBy('sortOrder', 'asc'))
-      : query(col, where('visibility', '==', 'players'), orderBy('sortOrder', 'asc'));
+      ? col
+      : query(col, where('visibility', '==', 'players'));
     const unsub = onSnapshot(q,
       snap => {
-        setFirestoreChars(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        if (!active) return;
+        const chars = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        chars.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+        setFirestoreChars(chars);
         setLoading(false);
       },
-      err => { setLoading(false); setError(err); },
+      err => { if (!active) return; setLoading(false); setError(err); },
     );
-    return unsub;
+    return () => { active = false; unsub(); };
   }, [isDM]);
 
   const mergedRoster = useMemo(() => {

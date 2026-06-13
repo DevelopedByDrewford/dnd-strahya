@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 import { TREE as STATIC_TREE, getLoc as staticGetLoc } from '../data/locations';
 
@@ -150,31 +150,45 @@ function findNodeName(nodes, id) {
 
 export const PARENT_OPTIONS = flattenTree(STATIC_TREE);
 
+function filterStaticNodes(nodes, dm) {
+  return nodes
+    .filter(n => dm || !n.dm)
+    .map(n => ({ ...n, children: filterStaticNodes(n.children || [], dm) }));
+}
+
 export function useLocations({ isDM = false } = {}) {
   const [firestoreLocs, setFirestoreLocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let active = true;
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'locations');
     const q = isDM
-      ? query(col, orderBy('sortOrder', 'asc'))
-      : query(col, where('visibility', '==', 'players'), orderBy('sortOrder', 'asc'));
+      ? col
+      : query(col, where('visibility', '==', 'players'));
     const unsub = onSnapshot(q,
       snap => {
-        setFirestoreLocs(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        if (!active) return;
+        const locs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        locs.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+        setFirestoreLocs(locs);
         setLoading(false);
       },
       err => {
+        if (!active) return;
         setLoading(false);
         setError(err);
       },
     );
-    return unsub;
+    return () => { active = false; unsub(); };
   }, [isDM]);
 
   const mergedTree = useCallback(() => {
-    if (firestoreLocs.length === 0) return [];
+    if (firestoreLocs.length === 0) {
+      // Fall back to static tree until Firestore is seeded
+      return filterStaticNodes(STATIC_TREE, isDM);
+    }
 
     const nodeMap = {};
     for (const loc of firestoreLocs) {
@@ -196,7 +210,7 @@ export function useLocations({ isDM = false } = {}) {
       }
     }
     return roots;
-  }, [firestoreLocs])();
+  }, [firestoreLocs, isDM])();
 
   const getLoc = useCallback((id) => {
     const fs = firestoreLocs.find(l => l.id === id);
