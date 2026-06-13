@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useLoot } from '../hooks/useLoot';
 import { QI } from '../data/quests';
@@ -225,9 +226,15 @@ function AddLootModal({ isDM, onClose, onAdd }) {
 // ── LootPage ──────────────────────────────────────────────────────────────────
 
 export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [modalOpen, setModalOpen] = useState(searchParams.get('new') === 'true');
 
   const { items, totalGp, addItem, claimItem } = useLoot(CAMPAIGN_ID, { isDM, userId: CURRENT_USER });
+
+  useEffect(() => {
+    if (searchParams.get('new') !== 'true') return;
+    setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleAdd(data) {
     try {

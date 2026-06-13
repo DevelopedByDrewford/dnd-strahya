@@ -251,5 +251,5 @@ export function useLocations({ isDM = false } = {}) {
     return batch.commit();
   }
 
-  return { mergedTree, getLoc, loading, seeded: firestoreLocs.length > 0, error, addLocation, updateLocation, deleteLocation, seedLocations };
+  return { mergedTree, getLoc, locations: firestoreLocs, loading, seeded: firestoreLocs.length > 0, error, addLocation, updateLocation, deleteLocation, seedLocations };
 }

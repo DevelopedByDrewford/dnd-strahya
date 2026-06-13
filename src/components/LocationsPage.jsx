@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import LocationModal from './LocationModal';
 import NotesList from './NotesList';
 import { ICONS } from '../data/locations';
 import { useLocations } from '../hooks/useLocations';
+import ImageLightbox from './ImageLightbox';
 import './LocationsPage.css';
 
 // ---- icon helpers ----
@@ -92,7 +93,7 @@ function PersonCard({ person }) {
 }
 
 // ---- Location detail ----
-function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile }) {
+function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile, onImageClick }) {
 
   const visChip = loc.visibility === 'hidden'
     ? <span className="chip sm tag-dm dm-only" style={{ '--d': 'inline-flex' }}>⛓ Hidden record</span>
@@ -103,7 +104,7 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile }
       {/* Banner */}
       <div className="banner">
         {loc.imageUrl
-          ? <img className="banner-img" src={loc.imageUrl} alt={loc.name} />
+          ? <img className="banner-img" src={loc.imageUrl} alt={loc.name} onClick={() => onImageClick(loc.imageUrl)} style={{ cursor: 'zoom-in' }} />
           : <div className="banner-hint">{loc.img}</div>
         }
         <div className="banner-frame" />
@@ -214,14 +215,21 @@ function LocationDetail({ loc, isDM, onSelect, onEdit, onDelete, user, profile }
 
 // ---- Main page ----
 export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState('blue-water-inn');
   const [collapsedIds, setCollapsedIds] = useState(new Set());
   const [treeOpen, setTreeOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(searchParams.get('new') === 'true');
 
   const { mergedTree, getLoc, loading, seeded, addLocation, updateLocation, deleteLocation, seedLocations } = useLocations({ isDM });
   const [seeding, setSeeding] = useState(false);
   const [editModal, setEditModal] = useState(null); // null | { id, loc }
+  const [lightbox, setLightbox] = useState(null);
+
+  useEffect(() => {
+    if (searchParams.get('new') !== 'true') return;
+    setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSeed() {
     setSeeding(true);
@@ -346,7 +354,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
 
             {/* Detail panel */}
             <section className="detail">
-              <LocationDetail key={selectedId} loc={loc} isDM={isDM} onSelect={selectLocation} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} />
+              <LocationDetail key={selectedId} loc={loc} isDM={isDM} onSelect={selectLocation} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} onImageClick={setLightbox} />
             </section>
           </div>
         </div>
@@ -364,6 +372,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
           onClose={() => setEditModal(null)}
         />
       )}
+      <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>
   );
 }

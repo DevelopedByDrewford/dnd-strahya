@@ -282,6 +282,7 @@ export function useCharacters({ isDM = false } = {}) {
         rosterRole: fs.rosterRole || '',
         group: fs.group || 'Allies',
         dot: fs.dot || 'neutral',
+        imageUrl: fs.imageUrl || '',
       };
     }
     return null;

@@ -10,6 +10,7 @@ import MyNotesPage from './components/MyNotesPage';
 import LootPage from './components/LootPage';
 import ActivityPage from './components/ActivityPage';
 import SignInModal from './components/SignInModal';
+import GlobalSearch from './components/GlobalSearch';
 import { useAuth } from './hooks/useAuth';
 import './styles/tome.css';
 
@@ -64,6 +65,7 @@ function App() {
           onClose={() => setShowSignIn(false)}
         />
       )}
+      <GlobalSearch isDM={isDM} user={user} profile={profile} />
     </>
   );
 }

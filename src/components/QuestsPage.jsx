@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import QuestModal from './QuestModal';
 import NotesList from './NotesList';
@@ -256,13 +257,19 @@ function LootView({ isDM }) {
 }
 
 export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { quests, loading, seeded, addQuest, updateQuest, deleteQuest, seedQuests } = useQuests({ userId: user?.uid, isDM });
   const [seeding, setSeeding] = useState(false);
   const [activeTab, setActiveTab]   = useState('quests');
   const [selectedId, setSelectedId] = useState('soul-coins');
   const [filter, setFilter]         = useState('Active');
   const [qlistOpen, setQlistOpen]   = useState(false);
-  const [modal, setModal]           = useState(null); // null | { mode: 'create' } | { mode: 'edit', quest }
+  const [modal, setModal]           = useState(searchParams.get('new') === 'true' ? { mode: 'create' } : null);
+
+  useEffect(() => {
+    if (searchParams.get('new') !== 'true') return;
+    setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     document.body.classList.toggle('qlist-open', qlistOpen);

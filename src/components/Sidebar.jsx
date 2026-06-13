@@ -1,7 +1,40 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
 import './Sidebar.css';
+
+const CREATE_ITEMS = [
+  {
+    label: 'Timeline entry',
+    sub: 'Log a new session moment',
+    to: '/timeline?new=true',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3v18M4 7h4M4 12h4M4 17h4M16 7h4M16 12h4M16 17h4"/></svg>,
+  },
+  {
+    label: 'Location',
+    sub: 'Add a place to the world',
+    to: '/locations?new=true',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 21s-7-5.6-7-11a7 7 0 1114 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>,
+  },
+  {
+    label: 'Character',
+    sub: 'Add an NPC, ally, or villain',
+    to: '/characters?new=true',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>,
+  },
+  {
+    label: 'Quest',
+    sub: 'Track a new quest',
+    to: '/quests?new=true',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg>,
+  },
+  {
+    label: 'Loot item',
+    sub: 'Add to the party pile',
+    to: '/loot?new=true',
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg>,
+  },
+];
 
 const NAV_GROUPS = [
   {
@@ -31,6 +64,14 @@ const NAV_GROUPS = [
 
 export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [showProfile, setShowProfile] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const navigate = useNavigate();
+
+  function handleCreate(to) {
+    setShowCreate(false);
+    onCloseNav();
+    navigate(to);
+  }
 
   return (
     <>
@@ -75,10 +116,10 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
         ))}
 
         <div className="grp dm-only" style={{ '--d': 'block' }}>Admin · DM</div>
-        <div className="nav dm-only" style={{ '--d': 'flex' }}>
+        <button className="nav dm-only" style={{ '--d': 'flex' }} onClick={() => setShowCreate(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 5v14M5 12h14"/></svg>
           Create / Edit
-        </div>
+        </button>
 
         <div className={`me${user ? ' me-clickable' : ''}`} onClick={user ? () => setShowProfile(true) : undefined}>
           {user === undefined ? null : user === null ? (
@@ -121,6 +162,28 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
           onSignOut={onSignOut}
           onProfileUpdate={onProfileUpdate}
         />
+      )}
+
+      {showCreate && (
+        <div className="create-overlay" onClick={() => setShowCreate(false)}>
+          <div className="create-modal" onClick={e => e.stopPropagation()}>
+            <div className="create-hd">
+              <span>Create</span>
+              <button className="btn icon ghost" onClick={() => setShowCreate(false)} aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            {CREATE_ITEMS.map(({ label, sub, to, icon }) => (
+              <button key={to} className="create-item" onClick={() => handleCreate(to)}>
+                <span className="create-icon">{icon}</span>
+                <span>
+                  <div className="create-label">{label}</div>
+                  <div className="create-sub">{sub}</div>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </>
   );

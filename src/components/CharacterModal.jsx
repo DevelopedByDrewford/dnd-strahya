@@ -9,6 +9,7 @@ const BLANK = {
   group: 'Allies',
   dot: 'neutral',
   visibility: 'players',
+  imageUrl: '',
   appearance: '',
   personality: '',
   secret: '',
@@ -23,6 +24,7 @@ export default function CharacterModal({ initial, onSave, onClose }) {
     group: initial.group || 'Allies',
     dot: initial.dot || 'neutral',
     visibility: initial.visibility || 'players',
+    imageUrl: initial.imageUrl || '',
     appearance: Array.isArray(initial.appearance) ? initial.appearance.join('\n\n') : initial.appearance || '',
     personality: initial.personality || '',
     secret: initial.secret || '',
@@ -45,6 +47,7 @@ export default function CharacterModal({ initial, onSave, onClose }) {
         group: form.group,
         dot: form.dot,
         visibility: form.visibility,
+        imageUrl: form.imageUrl.trim(),
         appearance: form.appearance.trim(),
         personality: form.personality.trim(),
         secret: form.secret.trim(),
@@ -88,6 +91,22 @@ export default function CharacterModal({ initial, onSave, onClose }) {
               onChange={e => set('sub', e.target.value)}
               placeholder="e.g. The Devil of Barovia, Lord of Ravenloft"
             />
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Portrait image URL</label>
+            <input
+              className="finput"
+              type="url"
+              value={form.imageUrl}
+              onChange={e => set('imageUrl', e.target.value)}
+              placeholder="https://…"
+            />
+            {form.imageUrl && (
+              <div className="fimg-preview" style={{ marginTop: 8 }}>
+                <img src={form.imageUrl} alt="preview" onError={e => { e.currentTarget.style.display = 'none'; }} />
+              </div>
+            )}
           </div>
 
           <div className="fgrid-2">

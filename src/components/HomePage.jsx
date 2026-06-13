@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useActivity } from '../hooks/useActivity';
+import { useTimeline } from '../hooks/useTimeline';
 import './HomePage.css';
+
+const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
 
 function timeAgo(ts) {
   if (!ts?.toMillis) return '—';
@@ -41,6 +44,8 @@ const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/
 
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const { activity } = useActivity({ isDM, userId: user?.uid, max: 8 });
+  const { entries: timelineEntries } = useTimeline(CAMPAIGN_ID, { isDM });
+  const latestEntry = timelineEntries.find(e => !e.hidden) || null;
 
   return (
     <div className="app">
@@ -55,7 +60,11 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
               </button>
               <span className="crumb">Home › <b>Barovia</b></span>
             </div>
-            <div className="search">
+            <div className="search" role="button" tabIndex={0}
+              onClick={() => window.dispatchEvent(new Event('open-global-search'))}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') window.dispatchEvent(new Event('open-global-search')); }}
+              style={{ cursor: 'text' }}
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
               Search the tome…
               <span className="kbd">⌘K</span>
@@ -128,14 +137,21 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
               <div className="card standing">
                 <div className="label">
                   <span className="eyebrow">Where things stand</span>
-                  <span className="chip gold">Session 12</span>
+                  {latestEntry && <span className="chip gold">{latestEntry.session}</span>}
                 </div>
-                <p>
-                  <span className="drop">T</span>he party broke bread at the Blue Water Inn as Vallaki's festival drew near. Ireena's nerves fray with every nightfall, and the bargain with the Abbot of Krezk remains unmade — the soul coins still bound, the deadline closing.
-                </p>
-                <div className="prep-note dm-only reveal-frame" style={{ '--d': 'block' }}>
-                  <div className="t"><b>⛓ DM only —</b> Next session: spring the ambush at the gates the moment they escort Ireena out. Foreshadow the Amber Temple.</div>
-                </div>
+                {latestEntry ? (
+                  <p>
+                    <span className="drop">{latestEntry.body[0]}</span>
+                    {latestEntry.body.slice(1)}
+                  </p>
+                ) : (
+                  <p className="muted" style={{ fontStyle: 'italic', fontSize: 14 }}>No sessions logged yet.</p>
+                )}
+                {isDM && latestEntry?.dmNote && (
+                  <div className="prep-note dm-only reveal-frame" style={{ '--d': 'block' }}>
+                    <div className="t"><b>⛓ DM only —</b> {latestEntry.dmNote}</div>
+                  </div>
+                )}
               </div>
             </div>
 

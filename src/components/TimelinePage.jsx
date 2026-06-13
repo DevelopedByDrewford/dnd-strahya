@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TimelineEntryModal from './TimelineEntryModal';
 import { TL_I } from '../data/timeline';
@@ -123,13 +124,19 @@ function TimelineEntry({ e, isDM, isNewest, entryRef, onEdit, onDelete }) {
 }
 
 export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { entries, loading, addEntry, updateEntry, deleteEntry, seedEntries } = useTimeline(CAMPAIGN_ID, { isDM });
   const [activeId, setActiveId]     = useState(null);
   const [srailOpen, setSrailOpen]   = useState(false);
-  const [modalEntry, setModalEntry] = useState(undefined); // undefined = closed, null = new, obj = edit
+  const [modalEntry, setModalEntry] = useState(searchParams.get('new') === 'true' ? null : undefined); // undefined = closed, null = new, obj = edit
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [seeding, setSeeding] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('new') !== 'true') return;
+    setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSeed() {
     setSeeding(true);

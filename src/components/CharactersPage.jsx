@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import CharacterModal from './CharacterModal';
 import NotesList from './NotesList';
 import { STATUS_ICONS } from '../data/characters';
 import { useCharacters } from '../hooks/useCharacters';
+import ImageLightbox from './ImageLightbox';
 import './CharactersPage.css';
 
 const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';
@@ -16,7 +17,7 @@ const PLUS_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 // create variable 'hello' 
 
-function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile }) {
+function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile, onImageClick }) {
 
   return (
     <div className="char-detail">
@@ -24,8 +25,18 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile }) {
       {/* Hero */}
       <div className="char-hero">
         <div className="char-portrait">
-          <span className="pini">{ch.name[0]}</span>
-          <span>{ch.portrait}</span>
+          {ch.imageUrl
+            ? <img
+                className="char-pfr-img"
+                src={ch.imageUrl}
+                alt={ch.name}
+                onClick={() => onImageClick(ch.imageUrl)}
+              />
+            : <>
+                <span className="pini">{ch.name[0]}</span>
+                <span>{ch.portrait}</span>
+              </>
+          }
         </div>
         <div className="char-meta">
           <h1 className="char-name">{ch.name}</h1>
@@ -162,12 +173,19 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile }) {
 }
 
 export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { mergedRoster, getChar, loading, seeded, addCharacter, updateCharacter, deleteCharacter, seedCharacters } = useCharacters({ isDM });
   const [selectedId, setSelectedId] = useState('strahd');
   const [rosterOpen, setRosterOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [modal, setModal] = useState(null); // null | { mode: 'create' } | { mode: 'edit', id, char }
+  const [modal, setModal] = useState(searchParams.get('new') === 'true' ? { mode: 'create' } : null);
   const [seeding, setSeeding] = useState(false);
+  const [lightbox, setLightbox] = useState(null);
+
+  useEffect(() => {
+    if (searchParams.get('new') !== 'true') return;
+    setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     document.body.classList.toggle('roster-open', rosterOpen);
@@ -310,7 +328,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
 
           {/* Character detail */}
           {getChar(selectedId) && (
-            <CharacterDetail key={selectedId} ch={getChar(selectedId)} isDM={isDM} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} />
+            <CharacterDetail key={selectedId} ch={getChar(selectedId)} isDM={isDM} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} onImageClick={setLightbox} />
           )}
 
         </div>
@@ -323,6 +341,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
           onClose={() => setModal(null)}
         />
       )}
+      <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>
   );
 }

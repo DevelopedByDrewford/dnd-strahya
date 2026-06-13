@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import MyCharacterModal from './MyCharacterModal';
 import SignInRequired from './SignInRequired';
 import { useMyCharacter } from '../hooks/useMyCharacter';
+import ImageLightbox from './ImageLightbox';
 import './MyCharacterPage.css';
 
 const MENU_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
@@ -34,6 +35,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [slots, setSlots] = useState(SLOT_INITIAL);
+  const [lightbox, setLightbox] = useState(null);
 
   function togglePip(level, idx) {
     setSlots(prev => ({ ...prev, [level]: prev[level].map((v, i) => i === idx ? !v : v) }));
@@ -140,7 +142,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
           <div className="mc-hero">
             <div className="mc-portrait">
               {ch.imageUrl
-                ? <img className="pfr pfr-img" src={ch.imageUrl} alt={ch.name} />
+                ? <img className="pfr pfr-img" src={ch.imageUrl} alt={ch.name} onClick={() => setLightbox(ch.imageUrl)} style={{ cursor: 'zoom-in' }} />
                 : <div className="pfr">
                     <span dangerouslySetInnerHTML={{ __html: USER_SVG }} />
                     {ch.name[0]}
@@ -254,6 +256,7 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
           </div>
         </div>
       )}
+      <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>
   );
 }
