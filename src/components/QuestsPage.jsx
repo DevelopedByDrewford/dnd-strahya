@@ -17,7 +17,7 @@ function pct(q) {
   return Math.round(q.subs.filter(s => s.done).length / q.subs.length * 100);
 }
 
-function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew }) {
+function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew, onSeed, seeding, seeded, loading, user }) {
   const visible = quests.filter(q => {
     if (q.dm && !isDM) return false;
     if (filter === 'Active')    return q.status === 'active';
@@ -30,8 +30,16 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew
     <aside className="qlist">
       <div className="qlhead">
         <h2>Quests</h2>
-        {isDM && <button className="btn sm" onClick={onNew} dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' New' }} />}
+        {user && seeded && <button className="btn sm" onClick={onNew} dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' New' }} />}
       </div>
+      {!loading && !seeded && isDM && (
+        <div style={{ padding: '16px 12px', textAlign: 'center' }}>
+          <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 10 }}>No quests yet.</p>
+          <button className="btn sm primary" onClick={onSeed} disabled={seeding}>
+            {seeding ? 'Seeding…' : 'Import sample data'}
+          </button>
+        </div>
+      )}
       <div className="qfilters">
         {FILTERS.map(f => (
           <button key={f} className={`qfilter${filter === f ? ' on' : ''}`} onClick={() => onFilter(f)}>{f}</button>
@@ -55,9 +63,6 @@ function QuestList({ quests, selectedId, onSelect, filter, onFilter, isDM, onNew
                       ? <span className="chip sm tag-dm dm-only" style={{ '--d': 'inline-flex' }}>DM</span>
                       : <span className="chip sm">{q.by}</span>
                   }
-                  {q.deadline && (
-                    <span className={`deadline${q.deadlineState ? ' ' + q.deadlineState : ''}`}>⏱ {q.deadline}</span>
-                  )}
                 </div>
               </div>
             </div>
@@ -78,9 +83,6 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
     ? <span className="chip sm" style={{ color: 'var(--live)', borderColor: 'rgba(127,160,95,.4)', background: 'rgba(127,160,95,.1)' }}>✓ Completed</span>
     : <span className="chip gold sm">Active</span>;
 
-  const deadlineChip = quest.deadline
-    ? <span className={`deadline${quest.deadlineState ? ' ' + quest.deadlineState : ''}`}>⏱ Due {quest.deadline}</span>
-    : <span className="deadline">No deadline</span>;
 
   const visChip = quest.dm
     ? <span className="chip sm tag-dm dm-only" style={{ '--d': 'inline-flex' }}>⛓ Hidden quest</span>
@@ -93,17 +95,14 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
         <h1>{quest.name}</h1>
         <div className="qchips">
           {statusChip}
-          {deadlineChip}
           {visChip}
           <span style={{ flex: 1 }} />
-          {quest.firestore && (
+          {quest.firestore && user && (
             <>
               <button className="btn sm" onClick={onEdit}>✎ Edit</button>
-              {isDM && (
-                <button className="btn sm ghost" onClick={onDelete} style={{ color: 'var(--blood)' }}>
-                  Delete
-                </button>
-              )}
+              <button className="btn sm ghost" onClick={onDelete} style={{ color: 'var(--blood)' }}>
+                Delete
+              </button>
             </>
           )}
         </div>
@@ -131,11 +130,6 @@ function QuestDetail({ quest, isDM, onToggleSub, onEdit, onDelete, user, profile
                 >
                   <span className="q-box" dangerouslySetInnerHTML={{ __html: QI.check }} />
                   <span className="ct">{s.t}</span>
-                  {s.deadline && (
-                    <span className={`deadline ${s.deadline} cd`}>
-                      {s.deadline === 'over' ? 'overdue' : 'soon'}
-                    </span>
-                  )}
                 </div>
               ))}
               <div className="addsub">
@@ -262,7 +256,8 @@ function LootView({ isDM }) {
 }
 
 export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
-  const { quests, addQuest, updateQuest, deleteQuest } = useQuests();
+  const { quests, loading, seeded, addQuest, updateQuest, deleteQuest, seedQuests } = useQuests({ userId: user?.uid, isDM });
+  const [seeding, setSeeding] = useState(false);
   const [activeTab, setActiveTab]   = useState('quests');
   const [selectedId, setSelectedId] = useState('soul-coins');
   const [filter, setFilter]         = useState('Active');
@@ -273,6 +268,11 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
     document.body.classList.toggle('qlist-open', qlistOpen);
     return () => document.body.classList.remove('qlist-open');
   }, [qlistOpen]);
+
+  async function handleSeed() {
+    setSeeding(true);
+    try { await seedQuests(); } finally { setSeeding(false); }
+  }
 
   function selectQuest(id) {
     setSelectedId(id);
@@ -335,10 +335,12 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
               </div>
             </div>
           </div>
-          <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-            <span className={`toggle${isDM ? ' on' : ''}`} />
-            DM Mode
-          </button>
+          {profile?.role === 'dm' && (
+            <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+              <span className={`toggle${isDM ? ' on' : ''}`} />
+              DM Mode
+            </button>
+          )}
         </div>
 
         {/* Quests view */}
@@ -352,6 +354,11 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
               onFilter={setFilter}
               isDM={isDM}
               onNew={() => setModal({ mode: 'create' })}
+              onSeed={handleSeed}
+              seeding={seeding}
+              seeded={seeded}
+              loading={loading}
+              user={user}
             />
             <QuestDetail
               quest={selectedQuest}

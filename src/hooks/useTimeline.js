@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, serverTimestamp, writeBatch,
+  onSnapshot, query, orderBy, where, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { TIMELINE as SEED_DATA } from '../data/timeline';
@@ -15,7 +15,9 @@ export function useTimeline(campaignId, { isDM = false } = {}) {
     if (!campaignId) { setLoading(false); return; }
 
     const col = collection(db, 'campaigns', campaignId, 'timeline');
-    const q = query(col, orderBy('order', 'desc'));
+    const q = isDM
+      ? query(col, orderBy('order', 'desc'))
+      : query(col, where('hidden', '==', false), orderBy('order', 'desc'));
 
     const unsub = onSnapshot(
       q,
@@ -34,6 +36,7 @@ export function useTimeline(campaignId, { isDM = false } = {}) {
   async function addEntry(data) {
     const col = collection(db, 'campaigns', campaignId, 'timeline');
     return addDoc(col, {
+      hidden: false,
       ...data,
       order: Date.now(),
       createdAt: serverTimestamp(),
@@ -56,7 +59,7 @@ export function useTimeline(campaignId, { isDM = false } = {}) {
     const batch = writeBatch(db);
     SEED_DATA.forEach((entry, i) => {
       const { id, ...data } = entry;
-      batch.set(doc(col, id), { ...data, order: SEED_DATA.length - i });
+      batch.set(doc(col, id), { ...data, order: SEED_DATA.length - i }, { merge: true });
     });
     return batch.commit();
   }

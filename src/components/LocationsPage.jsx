@@ -219,7 +219,7 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
   const [treeOpen, setTreeOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { mergedTree, getLoc, loading, seeded, addLocation, updateLocation, deleteLocation, seedLocations } = useLocations();
+  const { mergedTree, getLoc, loading, seeded, addLocation, updateLocation, deleteLocation, seedLocations } = useLocations({ isDM });
   const [seeding, setSeeding] = useState(false);
   const [editModal, setEditModal] = useState(null); // null | { id, loc }
 
@@ -301,10 +301,12 @@ export default function LocationsPage({ isDM, onToggleDM, onToggleNav, onCloseNa
               <span className="sep">›</span>
               {crumb}
             </div>
-            <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </div>
+            {profile?.role === 'dm' && (
+              <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+                <span className={`toggle${isDM ? ' on' : ''}`} />
+                DM Mode
+              </div>
+            )}
           </div>
 
           <div className="loc-layout">

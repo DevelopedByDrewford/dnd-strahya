@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 import { TREE as STATIC_TREE, getLoc as staticGetLoc } from '../data/locations';
 
@@ -150,14 +150,16 @@ function findNodeName(nodes, id) {
 
 export const PARENT_OPTIONS = flattenTree(STATIC_TREE);
 
-export function useLocations() {
+export function useLocations({ isDM = false } = {}) {
   const [firestoreLocs, setFirestoreLocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'locations');
-    const q = query(col, orderBy('sortOrder', 'asc'));
+    const q = isDM
+      ? query(col, orderBy('sortOrder', 'asc'))
+      : query(col, where('visibility', '==', 'players'), orderBy('sortOrder', 'asc'));
     const unsub = onSnapshot(q,
       snap => {
         setFirestoreLocs(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -169,7 +171,7 @@ export function useLocations() {
       },
     );
     return unsub;
-  }, []);
+  }, [isDM]);
 
   const mergedTree = useCallback(() => {
     if (firestoreLocs.length === 0) return [];

@@ -267,10 +267,12 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
             onClick={onToggleNav}
             dangerouslySetInnerHTML={{ __html: MENU_SVG }}
           />
-          <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-            <span className={`toggle${isDM ? ' on' : ''}`} />
-            DM Mode
-          </button>
+          {profile?.role === 'dm' && (
+            <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+              <span className={`toggle${isDM ? ' on' : ''}`} />
+              DM Mode
+            </button>
+          )}
         </div>
 
         <div className="lt-wrap">

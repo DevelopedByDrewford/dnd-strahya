@@ -5,7 +5,7 @@ export const TL_I = {
 };
 
 export const TIMELINE = [
-  { id: 's12', session: 'Session 12', day: 'Day 7 — Waning of the Crow Moon', kind: 'now',
+  { id: 's12', session: 'Session 12', day: 'Day 7 — Waning of the Crow Moon', kind: 'now', hidden: false,
     title: 'Bread and Omens at the Blue Water Inn',
     body: 'The party took refuge at the Blue Water Inn as Vallaki readied another of its desperate festivals. Over paprikash and watered wine, Urwin Martikov grew guarded at the mention of ravens — and Ireena, sleepless, confessed she dreams of the castle every night now.',
     links: [
@@ -17,7 +17,7 @@ export const TIMELINE = [
     author: 'Logged by Tessa',
     dmNote: 'Next session: the ambush at the gates the instant they try to escort Ireena out. Plant one wereraven feather in her room as foreshadowing.',
   },
-  { id: 's11', session: 'Session 11', day: 'Day 4', kind: 'dramatic',
+  { id: 's11', session: 'Session 11', day: 'Day 4', kind: 'dramatic', hidden: false,
     title: 'The Bones Are Gone',
     body: "Father Lucian met them ashen-faced: the relics of St. Andral had been stolen from beneath the altar. Without them, the church's ancient protection would fail before the festival's end. The party fanned out into Vallaki's suspicious streets, the clock already running.",
     links: [
@@ -28,7 +28,7 @@ export const TIMELINE = [
     author: 'Logged by Greg',
     dmNote: "Henrik hid the bones in a crate in his coffin shop. If they fail, run the spawn ambush at the festival as written — it should feel like a genuine loss.",
   },
-  { id: 's10', session: 'Session 10', day: 'Day 1', kind: 'milestone',
+  { id: 's10', session: 'Session 10', day: 'Day 1', kind: 'milestone', hidden: false,
     title: 'Through the Gates of Vallaki',
     body: 'After days on the Old Svalich Road, the party passed beneath the banners of Vallaki — "All Will Be Well" — and into the brittle cheer of the Burgomaster\'s rule. They had brought Ireena out of the village of Barovia alive. It felt, briefly, like progress.',
     links: [
@@ -38,7 +38,7 @@ export const TIMELINE = [
     ],
     author: 'Logged by the DM',
   },
-  { id: 's09', session: 'Session 9', day: 'Eve of departure', kind: '',
+  { id: 's09', session: 'Session 9', day: 'Eve of departure', kind: '', hidden: false,
     title: 'The Reading at Tser Pool',
     body: "In a firelit tent among the Vistani, Madam Eva turned the Tarokka cards and set the party's course: a holy symbol, a sword of light, a tome of secrets, an ally, and the place of the final reckoning. The cards do not lie. They merely wait.",
     links: [
@@ -49,7 +49,7 @@ export const TIMELINE = [
     author: 'Logged by the DM',
     dmNote: 'Record the actual card draws here so the artifact locations stay consistent all campaign. Sword → Amber Temple. Symbol → Wachterhaus. Tome → Ravenloft study.',
   },
-  { id: 's08', session: 'Sessions 1–8', day: 'Days of the Death House', kind: 'milestone',
+  { id: 's08', session: 'Sessions 1–8', day: 'Days of the Death House', kind: 'milestone', hidden: false,
     title: 'Out of the Mists',
     body: "It began, as these things do, with a wrong turn and a rising fog. The party awoke on the Svalich Road with no memory of arriving, found the cursed Death House, and survived it — barely. By the time they reached the village of Barovia and met grieving Ireena and her brother Ismark, Barovia had already closed around them like a fist.",
     links: [

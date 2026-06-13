@@ -20,6 +20,7 @@ const BLANK = {
   level: 1, alignment: '', background: '', backstory: '',
   str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10,
   ac: 10, hpMax: 10, hpCurrent: 10, speed: 30, initiative: '+0', profBonus: '+2',
+  imageUrl: '',
 };
 
 export default function MyCharacterModal({ initial, onSave, onClose }) {
@@ -60,6 +61,7 @@ export default function MyCharacterModal({ initial, onSave, onClose }) {
         profBonus: form.profBonus.trim(),
         sub,
         rosterRole,
+        imageUrl: form.imageUrl.trim(),
       });
       onClose();
     } finally {
@@ -162,6 +164,18 @@ export default function MyCharacterModal({ initial, onSave, onClose }) {
               <label className="flabel">Prof. Bonus</label>
               <input className="finput" value={form.profBonus} onChange={e => set('profBonus', e.target.value)} placeholder="+3" />
             </div>
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Portrait URL</label>
+            <input className="finput" type="url" value={form.imageUrl}
+              onChange={e => set('imageUrl', e.target.value)}
+              placeholder="https://example.com/portrait.jpg" />
+            {form.imageUrl && (
+              <div className="fimg-preview">
+                <img src={form.imageUrl} alt="Portrait preview" onError={e => { e.target.style.display = 'none'; }} />
+              </div>
+            )}
           </div>
 
           <div className="frow">

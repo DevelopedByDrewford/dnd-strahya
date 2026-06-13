@@ -70,6 +70,7 @@
   text-transform: uppercase; text-align: center; padding: 8px;
 }
 body.editing .mc-portrait .pfr { cursor: pointer; color: var(--gold-2); border-color: rgba(214,171,91,.5); }
+.mc-portrait .pfr-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 13px; }
 
 .mc-identity { flex: 1; min-width: 0; }
 .mc-identity .eyebrow { margin-bottom: 8px; }

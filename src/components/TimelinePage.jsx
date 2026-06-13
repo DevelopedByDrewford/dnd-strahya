@@ -214,6 +214,18 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
             <span className="tl-crumb">Campaign › <b>Timeline</b></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Resync Seed Data for Timeline */}
+            {/* {isDM && entries.length > 0 && (
+              <button
+                className="btn sm ghost dm-only"
+                style={{ '--d': 'inline-flex' }}
+                onClick={handleSeed}
+                disabled={seeding}
+                title="Patch hidden:false onto existing entries so players can see them"
+              >
+                {seeding ? 'Syncing…' : 'Resync data'}
+              </button>
+            )} */}
             {isDM && (
               <button
                 className="btn sm dm-only"
@@ -226,10 +238,12 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
                 New Entry
               </button>
             )}
-            <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </button>
+            {profile?.role === 'dm' && (
+              <button className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+                <span className={`toggle${isDM ? ' on' : ''}`} />
+                DM Mode
+              </button>
+            )}
           </div>
         </div>
 

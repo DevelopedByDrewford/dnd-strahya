@@ -96,10 +96,12 @@
 .feed { padding: 0; overflow: hidden; position: sticky; top: 88px; }
 .feed .fh { display: flex; align-items: center; justify-content: space-between; padding: 15px 17px; border-bottom: 1px solid var(--line); }
 .feed .fh h3 { font-size: 15px; letter-spacing: .05em; }
-.feed .item { display: flex; gap: 11px; padding: 13px 17px; border-bottom: 1px solid var(--line); }
+.feed .item { display: flex; gap: 11px; padding: 13px 17px; border-bottom: 1px solid var(--line); min-width: 0; }
 .feed .item:last-of-type { border-bottom: 0; }
+.feed .item > div { flex: 1; min-width: 0; overflow: hidden; }
 .feed .item .txt { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
 .feed .item .txt b { color: var(--ink); font-weight: 600; }
+.feed .item .feed-preview { font-size: 12px; color: var(--ink-3); font-style: italic; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .feed .item .when { font-size: 11px; color: var(--ink-3); margin-top: 3px; }
 .feed .seeall { display: block; text-align: center; padding: 12px; font-size: 12.5px; color: var(--gold); cursor: pointer; }
 

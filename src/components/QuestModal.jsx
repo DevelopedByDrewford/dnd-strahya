@@ -6,8 +6,6 @@ const BLANK = {
   by: '',
   giver: '',
   location: '',
-  deadline: '',
-  deadlineState: '',
   visibility: 'players',
   desc: '',
   rewards: '',
@@ -23,8 +21,6 @@ export default function QuestModal({ initial, onSave, onClose }) {
     by: initial.by || '',
     giver: initial.giver || '',
     location: initial.location || '',
-    deadline: initial.deadline || '',
-    deadlineState: initial.deadlineState || '',
     visibility: initial.dm ? 'hidden' : 'players',
     desc: initial.desc || '',
     rewards: Array.isArray(initial.rewards) ? initial.rewards.join(', ') : initial.rewards || '',
@@ -60,8 +56,6 @@ export default function QuestModal({ initial, onSave, onClose }) {
         by: form.by.trim() || '—',
         giver: form.giver.trim() || '—',
         location: form.location.trim() || '—',
-        deadline: form.deadline.trim() || null,
-        deadlineState: form.deadlineState || null,
         visibility: form.visibility,
         desc: form.desc.trim(),
         rewards: form.rewards.split(',').map(r => r.trim()).filter(Boolean),
@@ -134,26 +128,6 @@ export default function QuestModal({ initial, onSave, onClose }) {
                 onChange={e => set('location', e.target.value)}
                 placeholder="e.g. Vallaki"
               />
-            </div>
-          </div>
-
-          <div className="fgrid-2">
-            <div className="frow">
-              <label className="flabel">Deadline</label>
-              <input
-                className="finput"
-                value={form.deadline}
-                onChange={e => set('deadline', e.target.value)}
-                placeholder="e.g. 3 days"
-              />
-            </div>
-            <div className="frow">
-              <label className="flabel">Deadline State</label>
-              <select className="finput" value={form.deadlineState} onChange={e => set('deadlineState', e.target.value)}>
-                <option value="">None</option>
-                <option value="soon">Soon</option>
-                <option value="over">Overdue</option>
-              </select>
             </div>
           </div>
 

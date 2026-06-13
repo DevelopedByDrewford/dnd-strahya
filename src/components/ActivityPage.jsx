@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { PRESENCE, REC_I, ACT_I } from '../data/activity';
@@ -139,9 +139,16 @@ function ActivityStream({ notes, filter, userId }) {
 
 // ── ActivityPage ──────────────────────────────────────────────────────────────
 
+const VALID_FILTERS = new Set(FILTERS.map(f => f.key));
+
 export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
-  const [activeCat, setActiveCat] = useState('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCat = VALID_FILTERS.has(searchParams.get('filter')) ? searchParams.get('filter') : 'all';
   const { activity, loading } = useActivity({ isDM, userId: user?.uid });
+
+  function setFilter(key) {
+    setSearchParams(key === 'all' ? {} : { filter: key }, { replace: true });
+  }
 
   return (
     <div className="act-app">
@@ -160,10 +167,12 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
                 <Link to="/">Home</Link> › <b>Activity</b>
               </span>
             </div>
-            <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </div>
+            {profile?.role === 'dm' && (
+              <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+                <span className={`toggle${isDM ? ' on' : ''}`} />
+                DM Mode
+              </div>
+            )}
           </div>
 
           <div className="act-wrap">
@@ -182,7 +191,7 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
                 <button
                   key={f.key}
                   className={`act-fchip${activeCat === f.key ? ' on' : ''}`}
-                  onClick={() => setActiveCat(f.key)}
+                  onClick={() => setFilter(f.key)}
                 >
                   <span dangerouslySetInnerHTML={{ __html: f.icon }} />
                   {f.label}

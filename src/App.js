@@ -6,6 +6,7 @@ import CharactersPage from './components/CharactersPage';
 import QuestsPage from './components/QuestsPage';
 import TimelinePage from './components/TimelinePage';
 import MyCharacterPage from './components/MyCharacterPage';
+import MyNotesPage from './components/MyNotesPage';
 import LootPage from './components/LootPage';
 import ActivityPage from './components/ActivityPage';
 import SignInModal from './components/SignInModal';
@@ -53,6 +54,7 @@ function App() {
         <Route path="/quests" element={<QuestsPage {...sharedProps} />} />
         <Route path="/timeline" element={<TimelinePage {...sharedProps} />} />
         <Route path="/my-character" element={<MyCharacterPage {...sharedProps} />} />
+        <Route path="/my-notes" element={<MyNotesPage {...sharedProps} />} />
         <Route path="/loot" element={<LootPage {...sharedProps} />} />
         <Route path="/activity" element={<ActivityPage {...sharedProps} />} />
       </Routes>

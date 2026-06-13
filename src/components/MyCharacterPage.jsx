@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 import MyCharacterModal from './MyCharacterModal';
+import SignInRequired from './SignInRequired';
 import { useMyCharacter } from '../hooks/useMyCharacter';
 import './MyCharacterPage.css';
 
@@ -53,22 +54,11 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
   // ── Not signed in ─────────────────────────────────────────────────────────
   if (!user) {
     return (
-      <div className="mc-app">
-        <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
-        <div className="mc-main">
-          <div className="mc-topbar">
-            <div className="mc-crumb">
-              <button className="hamburger btn sm icon" onClick={onToggleNav} dangerouslySetInnerHTML={{ __html: MENU_SVG }} />
-              <span>You › <b>My Character</b></span>
-            </div>
-          </div>
-          <div className="mc-empty">
-            <div dangerouslySetInnerHTML={{ __html: USER_SVG }} />
-            <p>Sign in to create and manage your character.</p>
-            <button className="btn primary" onClick={onSignIn}>Sign in</button>
-          </div>
-        </div>
-      </div>
+      <SignInRequired
+        {...{ isDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }}
+        breadcrumb="My Character"
+        message="Sign in to create and manage your character."
+      />
     );
   }
 
@@ -149,10 +139,13 @@ export default function MyCharacterPage({ isDM, onToggleDM, onToggleNav, onClose
           {/* Identity hero */}
           <div className="mc-hero">
             <div className="mc-portrait">
-              <div className="pfr">
-                <span dangerouslySetInnerHTML={{ __html: USER_SVG }} />
-                {ch.name[0]}
-              </div>
+              {ch.imageUrl
+                ? <img className="pfr pfr-img" src={ch.imageUrl} alt={ch.name} />
+                : <div className="pfr">
+                    <span dangerouslySetInnerHTML={{ __html: USER_SVG }} />
+                    {ch.name[0]}
+                  </div>
+              }
             </div>
             <div className="mc-identity">
               <div className="eyebrow">Player Character · {profile?.displayName || user.email}</div>

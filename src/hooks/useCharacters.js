@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   collection, addDoc, updateDoc, deleteDoc,
-  doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch,
+  doc, onSnapshot, query, orderBy, where, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -173,14 +173,16 @@ const CHARACTER_SEED = [
   },
 ];
 
-export function useCharacters() {
+export function useCharacters({ isDM = false } = {}) {
   const [firestoreChars, setFirestoreChars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const col = collection(db, 'campaigns', CAMPAIGN_ID, 'characters');
-    const q = query(col, orderBy('sortOrder', 'asc'));
+    const q = isDM
+      ? query(col, orderBy('sortOrder', 'asc'))
+      : query(col, where('visibility', '==', 'players'), orderBy('sortOrder', 'asc'));
     const unsub = onSnapshot(q,
       snap => {
         setFirestoreChars(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -189,7 +191,7 @@ export function useCharacters() {
       err => { setLoading(false); setError(err); },
     );
     return unsub;
-  }, []);
+  }, [isDM]);
 
   const mergedRoster = useMemo(() => {
     if (firestoreChars.length === 0) return [];

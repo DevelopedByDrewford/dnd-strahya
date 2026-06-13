@@ -21,7 +21,7 @@ const HubTile = ({ icon, label, count, sub, dm, prep }) => (
   </div>
 );
 
-const FeedItem = ({ initials, dmAvatar, children, when }) => (
+const FeedItem = ({ initials, dmAvatar, children, when, preview }) => (
   <div
     className={`item${dmAvatar ? ' dm-only reveal-frame' : ''}`}
     style={dmAvatar ? { '--d': 'flex' } : undefined}
@@ -31,6 +31,7 @@ const FeedItem = ({ initials, dmAvatar, children, when }) => (
     </span>
     <div>
       <div className="txt" style={dmAvatar ? { color: '#f0b3ad' } : undefined}>{children}</div>
+      {preview && <div className="feed-preview">"{preview}"</div>}
       <div className="when">{when}</div>
     </div>
   </div>
@@ -59,10 +60,12 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
               Search the tome…
               <span className="kbd">⌘K</span>
             </div>
-            <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
-              <span className={`toggle${isDM ? ' on' : ''}`} />
-              DM Mode
-            </div>
+            {profile?.role === 'dm' && (
+              <div className={`dmswitch${isDM ? ' on' : ''}`} onClick={onToggleDM}>
+                <span className={`toggle${isDM ? ' on' : ''}`} />
+                DM Mode
+              </div>
+            )}
           </div>
 
           <div className="content">
@@ -153,6 +156,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                   initials={(n.who || '?')[0].toUpperCase()}
                   dmAvatar={n.scope === 'dm'}
                   when={timeAgo(n.createdAt)}
+                  preview={n.scope === 'pub' && n.body ? n.body.slice(0, 90) + (n.body.length > 90 ? '…' : '') : null}
                 >
                   <b>{n.who}</b>{' '}
                   {n.scope === 'priv' && <span className="chip xs tag-priv">private</span>}

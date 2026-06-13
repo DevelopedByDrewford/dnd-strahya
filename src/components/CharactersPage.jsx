@@ -162,7 +162,7 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile }) {
 }
 
 export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
-  const { mergedRoster, getChar, loading, seeded, addCharacter, updateCharacter, deleteCharacter, seedCharacters } = useCharacters();
+  const { mergedRoster, getChar, loading, seeded, addCharacter, updateCharacter, deleteCharacter, seedCharacters } = useCharacters({ isDM });
   const [selectedId, setSelectedId] = useState('strahd');
   const [rosterOpen, setRosterOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -244,13 +244,15 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
             <span className="sep">›</span>
             <b>Characters</b>
           </div>
-          <button
-            className={`dmswitch${isDM ? ' on' : ''}`}
-            onClick={onToggleDM}
-          >
-            <span className={`toggle${isDM ? ' on' : ''}`} />
-            DM Mode
-          </button>
+          {profile?.role === 'dm' && (
+            <button
+              className={`dmswitch${isDM ? ' on' : ''}`}
+              onClick={onToggleDM}
+            >
+              <span className={`toggle${isDM ? ' on' : ''}`} />
+              DM Mode
+            </button>
+          )}
         </div>
 
         <div className="char-layout">
