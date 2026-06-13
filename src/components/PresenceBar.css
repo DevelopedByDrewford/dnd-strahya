@@ -1,0 +1,24 @@
+.act-presbar {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: none; cursor: pointer; padding: 4px 8px 4px 0;
+  border-radius: 8px; transition: background .14s;
+}
+.act-presbar:hover { background: var(--bg-2); }
+.act-pav {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid var(--line-2); margin-left: -9px;
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgba(214, 171, 91, .2), transparent 60%),
+    linear-gradient(160deg, #3a2f27, #221a15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 12px; color: var(--ink);
+}
+.act-pav:first-child { margin-left: 0; }
+.act-pcount {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--live); margin-left: 8px;
+}
+.act-pcount::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--live); box-shadow: 0 0 8px rgba(127, 160, 95, .8);
+}

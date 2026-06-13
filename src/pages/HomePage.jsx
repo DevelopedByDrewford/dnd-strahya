@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
+import UserPeekModal from '../components/UserPeekModal';
 import { useActivity } from '../hooks/useActivity';
 import { useTimeline } from '../hooks/useTimeline';
 import { useCharacters } from '../hooks/useCharacters';
@@ -37,7 +39,7 @@ const FeedItem = ({ initials, dmAvatar, children, when, preview }) => (
     <span className="av" style={{ width: 32, height: 32, fontSize: 12, ...(dmAvatar ? { borderColor: 'rgba(200,70,60,.5)' } : {}) }}>
       {initials}
     </span>
-    <div>
+    <div style={{ minWidth: 0 }}>
       <div className="txt" style={dmAvatar ? { color: '#f0b3ad' } : undefined}>{children}</div>
       {preview && <div className="feed-preview">"{preview}"</div>}
       <div className="when">{when}</div>
@@ -48,6 +50,7 @@ const FeedItem = ({ initials, dmAvatar, children, when, preview }) => (
 const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
 
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
+  const [peekUser, setPeekUser] = useState(null);
   const { activity } = useActivity({ isDM, userId: user?.uid, max: 5 });
   const { entries: timelineEntries } = useTimeline(CAMPAIGN_ID, { isDM });
   const { mergedRoster } = useCharacters({ isDM });
@@ -62,6 +65,7 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
   const latestEntry = timelineEntries.find(e => !e.hidden) || null;
 
   return (
+    <>
     <div className="app">
       <div className="scrim" onClick={onCloseNav} />
       <Sidebar isDM={isDM} onCloseNav={onCloseNav} user={user} profile={profile} onSignIn={onSignIn} onSignOut={onSignOut} onProfileUpdate={onProfileUpdate} />
@@ -172,11 +176,11 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
                   when={timeAgo(n.createdAt)}
                   preview={n.scope === 'pub' && n.body ? n.body.slice(0, 90) + (n.body.length > 90 ? '…' : '') : null}
                 >
-                  <b>{n.who}</b>{' '}
+                  <button className="who-btn" onClick={() => setPeekUser({ uid: n.authorId, name: n.who })}><b>{n.who}</b></button>{' '}
                   {n.scope === 'priv' && <span className="chip xs tag-priv">private</span>}
                   {n.scope === 'dm'   && <span className="chip xs tag-dm">DM</span>}
                   {' '}noted on{' '}
-                  <Link to={TYPE_ROUTE[n.entityType] || '#'} style={{ color: 'var(--gold)' }}>
+                  <Link to={TYPE_ROUTE[n.entityType] && n.entityId ? `${TYPE_ROUTE[n.entityType]}?id=${n.entityId}` : (TYPE_ROUTE[n.entityType] || '#')} style={{ color: 'var(--gold)' }}>
                     {n.entityName}
                   </Link>
                 </FeedItem>
@@ -186,5 +190,9 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
           </div>
         </div>
       </div>
+    {peekUser && (
+      <UserPeekModal uid={peekUser.uid} name={peekUser.name} onClose={() => setPeekUser(null)} />
+    )}
+    </>
   );
 }

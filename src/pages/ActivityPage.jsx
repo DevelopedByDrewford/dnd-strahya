@@ -3,8 +3,9 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { useState } from 'react';
 import { REC_I, ACT_I } from '../data/activity';
-import { usePresenceList } from '../hooks/usePresence';
+import PresenceBar from '../components/PresenceBar';
 import PlayersModal from '../components/PlayersModal';
+import UserPeekModal from '../components/UserPeekModal';
 import { useActivity } from '../hooks/useActivity';
 import './ActivityPage.css';
 
@@ -59,41 +60,16 @@ function groupByDay(notes) {
 const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/quests' };
 // ── sub-components ────────────────────────────────────────────────────────────
 
-const PRESENCE_COLORS = ['var(--gold-2)', 'var(--live)', '#7ba4c4', '#c4907b', '#a47bc4', '#c4b87b'];
-function presenceColor(uid) {
-  let h = 0;
-  for (const c of uid) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
-  return PRESENCE_COLORS[Math.abs(h) % PRESENCE_COLORS.length];
-}
-
-function PresenceBar({ userId, onOpen }) {
-  const presenceList = usePresenceList({ userId });
-  if (!presenceList.length) return null;
-  return (
-    <button className="act-presbar" onClick={onOpen} title="See all players">
-      {presenceList.map(p => (
-        <span
-          key={p.uid}
-          className="act-pav"
-          style={{ borderColor: p.uid === userId ? 'var(--gold-2)' : presenceColor(p.uid) }}
-        >
-          {(p.displayName || '?')[0].toUpperCase()}
-        </span>
-      ))}
-      <span className="act-pcount">{presenceList.length} here now</span>
-    </button>
-  );
-}
-
 function ScopeTag({ scope }) {
   if (!scope) return null;
   const label = scope === 'pub' ? 'public' : scope === 'priv' ? 'private' : 'DM';
   return <span className={`act-sc ${scope}`}>{label}</span>;
 }
 
-function NoteActivityItem({ note }) {
+function NoteActivityItem({ note, onPeekUser }) {
   const isDmNote = note.scope === 'dm';
-  const route = TYPE_ROUTE[note.entityType] || '#';
+  const base = TYPE_ROUTE[note.entityType];
+  const route = base && note.entityId ? `${base}?id=${note.entityId}` : (base || '#');
   return (
     <div
       className={`act-item${isDmNote ? ' dm-only reveal-frame' : ''}`}
@@ -104,7 +80,7 @@ function NoteActivityItem({ note }) {
       <div className="act-ibody">
         <div className="act-iline">
           <span className="av" style={{ width: 24, height: 24, fontSize: 11 }}>{initials(note.who)}</span>
-          <span className="act-who">{note.who}</span>
+          <button className="who-btn act-who" onClick={() => onPeekUser({ uid: note.authorId, name: note.who })}>{note.who}</button>
           <span className="act-txt">noted on</span>
           <Link className="act-rlink" to={route}>
             <span className="act-ri" dangerouslySetInnerHTML={{ __html: REC_I[note.entityType] || REC_I.note || '' }} />
@@ -121,7 +97,7 @@ function NoteActivityItem({ note }) {
   );
 }
 
-function ActivityStream({ notes, filter, userId }) {
+function ActivityStream({ notes, filter, userId, onPeekUser }) {
   const visible = notes.filter(n => {
     if (filter === 'note')   return true;
     if (filter === 'mine')   return n.authorId === userId;
@@ -140,7 +116,7 @@ function ActivityStream({ notes, filter, userId }) {
       {groups.map(([day, dayNotes]) => (
         <div key={day} className="act-daygrp">
           <div className="act-dh">{day}</div>
-          {dayNotes.map(n => <NoteActivityItem key={n.id} note={n} />)}
+          {dayNotes.map(n => <NoteActivityItem key={n.id} note={n} onPeekUser={onPeekUser} />)}
         </div>
       ))}
     </div>
@@ -156,6 +132,7 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
   const activeCat = VALID_FILTERS.has(searchParams.get('filter')) ? searchParams.get('filter') : 'all';
   const { activity, loading } = useActivity({ isDM, userId: user?.uid });
   const [playersOpen, setPlayersOpen] = useState(false);
+  const [peekUser, setPeekUser] = useState(null);
 
   function setFilter(key) {
     setSearchParams(key === 'all' ? {} : { filter: key }, { replace: true });
@@ -204,13 +181,16 @@ export default function ActivityPage({ isDM, onToggleDM, onToggleNav, onCloseNav
             {/* Stream */}
             {loading
               ? <div className="act-empty">Loading…</div>
-              : <ActivityStream notes={activity} filter={activeCat} userId={user?.uid} />
+              : <ActivityStream notes={activity} filter={activeCat} userId={user?.uid} onPeekUser={setPeekUser} />
             }
           </div>
         </div>
       </div>
       {playersOpen && (
         <PlayersModal currentUserId={user?.uid} onClose={() => setPlayersOpen(false)} />
+      )}
+      {peekUser && (
+        <UserPeekModal uid={peekUser.uid} name={peekUser.name} onClose={() => setPeekUser(null)} />
       )}
     </>
   );

@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
+import PresenceBar from './PresenceBar';
+import PlayersModal from './PlayersModal';
 import { lang } from '../data/lang';
 import { useCharacters } from '../hooks/useCharacters';
 import { useLocations } from '../hooks/useLocations';
@@ -69,6 +71,7 @@ const NAV_GROUPS = [
 export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [showProfile, setShowProfile] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [showPlayers, setShowPlayers] = useState(false);
   const navigate = useNavigate();
 
   const { mergedRoster } = useCharacters({ isDM });
@@ -136,6 +139,10 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
           {lang.add_new}
         </button>
 
+        <div className="rail-presbar">
+          <PresenceBar userId={user?.uid} onOpen={() => setShowPlayers(true)} />
+        </div>
+
         <div className={`me${user ? ' me-clickable' : ''}`} onClick={user ? () => setShowProfile(true) : undefined}>
           {user === undefined ? null : user === null ? (
             <button className="btn ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={onSignIn}>
@@ -177,6 +184,10 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
           onSignOut={onSignOut}
           onProfileUpdate={onProfileUpdate}
         />
+      )}
+
+      {showPlayers && (
+        <PlayersModal currentUserId={user?.uid} onClose={() => setShowPlayers(false)} />
       )}
 
       {showCreate && (

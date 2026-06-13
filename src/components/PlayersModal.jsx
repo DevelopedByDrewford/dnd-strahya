@@ -81,16 +81,28 @@ export default function PlayersModal({ onClose, currentUserId }) {
             </svg>
           </button>
         </div>
-        <div className="pm-list">
-          {sorted.map(u => (
-            <PlayerCard
-              key={u.uid}
-              user={u}
-              presence={presenceByUid[u.uid]}
-              isYou={u.uid === currentUserId}
-            />
-          ))}
+        <div className="pm-list" style={{ padding: '8px 20px 20px' }}>
           {!sorted.length && <p className="muted" style={{ padding: '12px 0' }}>No players found.</p>}
+          {(() => {
+            const online  = sorted.filter(u => { const p = presenceByUid[u.uid]; return p && (Date.now() - (p.lastSeen?.toMillis?.() ?? 0)) < STALE_MS; });
+            const offline = sorted.filter(u => { const p = presenceByUid[u.uid]; return !p || (Date.now() - (p.lastSeen?.toMillis?.() ?? 0)) >= STALE_MS; });
+            return (
+              <>
+                {online.length > 0 && (
+                  <>
+                    <div className="pm-group-label">At the table</div>
+                    {online.map(u => <PlayerCard key={u.uid} user={u} presence={presenceByUid[u.uid]} isYou={u.uid === currentUserId} />)}
+                  </>
+                )}
+                {offline.length > 0 && (
+                  <>
+                    <div className="pm-group-label pm-group-label-off">Away from the tome</div>
+                    {offline.map(u => <PlayerCard key={u.uid} user={u} presence={presenceByUid[u.uid]} isYou={u.uid === currentUserId} />)}
+                  </>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

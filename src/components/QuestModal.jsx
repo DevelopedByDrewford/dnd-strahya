@@ -25,7 +25,7 @@ export default function QuestModal({ initial, onSave, onClose, characters = [], 
     desc: initial.desc || '',
     rewards: Array.isArray(initial.rewards) ? initial.rewards.join(', ') : initial.rewards || '',
     secret: initial.secret || '',
-    subs: initial.subs ? initial.subs.map(s => ({ t: s.t, done: s.done })) : [],
+    subs: initial.subs ? initial.subs.map(s => ({ t: s.t, done: s.done, failed: s.failed || false })) : [],
     links: initial.links || [],
   } : BLANK);
   const [saving, setSaving] = useState(false);
@@ -62,7 +62,7 @@ export default function QuestModal({ initial, onSave, onClose, characters = [], 
         desc: form.desc.trim(),
         rewards: form.rewards.split(',').map(r => r.trim()).filter(Boolean),
         secret: form.secret.trim(),
-        subs: form.subs.filter(s => s.t.trim()).map(s => ({ t: s.t.trim(), done: s.done })),
+        subs: form.subs.filter(s => s.t.trim()).map(s => ({ t: s.t.trim(), done: s.done, failed: s.failed || false })),
         links: form.links,
       });
       onClose();

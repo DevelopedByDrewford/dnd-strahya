@@ -53,12 +53,16 @@
 }
 .nav .count { margin-left: auto; font-size: 11px; color: var(--ink-3); }
 
+.rail-presbar {
+  margin-top: auto; padding-left: 10px; padding-bottom: 6px;
+}
+
 .me {
-  margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line);
+  padding-top: 12px; border-top: 1px solid var(--line);
   display: flex; align-items: center; gap: 10px;
 }
 .me-clickable {
-  cursor: pointer; border-radius: 10px; padding: 6px 8px; margin: auto -8px 0;
+  cursor: pointer; border-radius: 10px; padding: 6px 8px; 
   transition: background .16s;
 }
 .me-clickable:hover { background: rgba(255,255,255,.04); }

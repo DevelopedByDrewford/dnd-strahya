@@ -1,0 +1,58 @@
+.upk-overlay { align-items: center; justify-content: center; }
+
+.upk-box {
+  background: var(--bg-1);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  width: 200px;
+  padding: 28px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .55);
+}
+
+.upk-close {
+  position: absolute; top: 8px; right: 8px;
+}
+
+.upk-av {
+  position: relative;
+  width: 68px; height: 68px; border-radius: 50%;
+  border: 2px solid var(--line-2);
+  background:
+    radial-gradient(120% 120% at 30% 20%, rgba(214, 171, 91, .2), transparent 60%),
+    linear-gradient(160deg, #3a2f27, #221a15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 26px; color: var(--ink);
+  overflow: visible; margin-bottom: 6px;
+}
+.upk-av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+.upk-dot {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--live); border: 2px solid var(--bg-1);
+  box-shadow: 0 0 7px rgba(127, 160, 95, .8);
+}
+
+.upk-name { font-size: 15px; font-weight: 700; color: var(--ink); text-align: center; }
+.upk-role { font-size: 12px; color: var(--ink-3); }
+.upk-online { font-size: 11.5px; color: var(--live); margin-top: 2px; }
+
+/* clickable username buttons — used across activity, notes, feed */
+.who-btn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font: inherit; color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(255, 255, 255, .25);
+  transition: color .12s, text-decoration-color .12s;
+}
+.who-btn:hover {
+  color: var(--gold);
+  text-decoration-color: var(--gold);
+}

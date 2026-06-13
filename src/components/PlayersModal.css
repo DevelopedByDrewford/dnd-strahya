@@ -1,11 +1,21 @@
 .pm-box { max-width: 420px; width: 100%; }
 
+@media (max-width: 760px) {
+  .modal-overlay:has(.pm-box) { align-items: center; padding: 16px; }
+  .modal-overlay:has(.pm-box) .pm-box { width: 100%; border-radius: var(--r); max-height: 85vh; }
+}
+
 .pm-hcount {
   font-size: 13px; font-weight: 400; color: var(--live);
   margin-left: 10px; vertical-align: middle;
 }
 
-.pm-list { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 2px; }
+.pm-list { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 2px; overflow-y: auto; }
+.pm-group-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--live); padding: 6px 15px 2px;
+}
+.pm-group-label-off { color: var(--ink-3); margin-top: 6px; }
 
 .pm-card {
   display: flex; align-items: center; gap: 14px;

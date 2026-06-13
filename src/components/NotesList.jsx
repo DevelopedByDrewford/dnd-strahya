@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNotes } from '../hooks/useNotes';
+import UserPeekModal from './UserPeekModal';
 
 const SCOPE_LABELS = { pub: 'Public', priv: 'Private', dm: 'DM only' };
 const SCOPE_CLS    = { pub: 'tag-pub', priv: 'tag-priv', dm: 'tag-dm' };
@@ -20,6 +21,7 @@ export default function NotesList({ entityId, entityType, entityName, user, prof
   const { notes, addNote, updateNote, deleteNote } = useNotes(entityId, { isDM, userId });
 
   const [filter,    setFilter]    = useState('all');
+  const [peekUser,  setPeekUser]  = useState(null);
   const [composing, setComposing] = useState(false);
   const [newBody,   setNewBody]   = useState('');
   const [newScope,  setNewScope]  = useState('pub');
@@ -67,6 +69,9 @@ export default function NotesList({ entityId, entityType, entityName, user, prof
 
   return (
     <>
+      {peekUser && (
+        <UserPeekModal uid={peekUser.uid} name={peekUser.name} onClose={() => setPeekUser(null)} />
+      )}
       <div className="notes-head">
         <h3>Notes</h3>
         <span className="chip sm"><span className="dot-live" /> {notes.length}</span>
@@ -94,9 +99,10 @@ export default function NotesList({ entityId, entityType, entityName, user, prof
           <div key={n.id} className={`note ${n.scope === 'dm' ? 'dmn dm-only' : n.scope === 'priv' ? 'priv' : 'pub'}`}
             style={n.scope === 'dm' ? { '--d': 'block' } : undefined}>
             <div className="note-head">
-              <span className={`chip sm ${SCOPE_CLS[n.scope]}`}>
-                {SCOPE_LABELS[n.scope]} · {n.who}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className={`chip sm ${SCOPE_CLS[n.scope]}`}>{SCOPE_LABELS[n.scope]}</span>
+                <button className="who-btn" style={{ fontSize: 12 }} onClick={() => setPeekUser({ uid: n.authorId, name: n.who })}>{n.who}</button>
+              </div>
               <span className="tiny dim">{timeAgo(n.createdAt)}</span>
             </div>
 
