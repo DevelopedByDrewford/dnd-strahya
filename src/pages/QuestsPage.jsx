@@ -7,6 +7,7 @@ import NotesList from '../components/NotesList';
 import { QI } from '../data/quests';
 import { useQuests } from '../hooks/useQuests';
 import './QuestsPage.css';
+import { lang } from '../data/lang';
 
 
 const QLIST_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>';
@@ -295,7 +296,7 @@ export default function QuestsPage({ isDM, onToggleDM, onToggleNav, onCloseNav, 
             <button className="qlistToggle" onClick={() => setQlistOpen(o => !o)}
               dangerouslySetInnerHTML={{ __html: QLIST_SVG }} />
           }
-          crumb={<>World › <b>Quest</b></>}
+          crumb={<>{lang.breadcrumb_world} › <b>Quest</b></>}
         />
 
         <div className="qlayout">

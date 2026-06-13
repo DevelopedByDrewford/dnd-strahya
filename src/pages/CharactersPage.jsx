@@ -8,6 +8,7 @@ import { STATUS_ICONS } from '../data/characters';
 import { useCharacters } from '../hooks/useCharacters';
 import ImageLightbox from '../components/ImageLightbox';
 import './CharactersPage.css';
+import { lang } from '../data/lang';
 
 const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';
 
@@ -268,7 +269,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
               </svg>
             </button>
           }
-          crumb={<><Link to="/">World</Link><span className="sep">›</span><b>Characters</b></>}
+          crumb={<>{lang.breadcrumb_world} <span className="sep">›</span> <b>Characters</b></>}
         />
 
         <div className="char-layout">
