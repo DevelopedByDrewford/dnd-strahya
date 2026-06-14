@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import LinkedRecordPicker from './LinkedRecordPicker';
 
-const GROUPS = ['The Party', 'Camp Companion', 'Allies', 'Neutral', 'Enemies', 'Hidden'];
+const GROUPS = ['The Party', 'Camp Companions', 'Allies', 'Neutral', 'Enemies', 'Hidden'];
 
 const BLANK = {
   name: '',

@@ -202,7 +202,7 @@ export function useCharacters({ isDM = false } = {}) {
 
     const groupMap = {};
     for (const ch of firestoreChars) {
-      const grp = ch.group || 'Allies';
+      const grp = (ch.group === 'Camp Companion' ? 'Camp Companions' : ch.group) || 'Allies';
       if (!groupMap[grp]) {
         groupMap[grp] = { grp, dm: ch.visibility === 'hidden', items: [] };
       }
@@ -215,7 +215,7 @@ export function useCharacters({ isDM = false } = {}) {
         firestore: true,
       });
     }
-    const GROUP_ORDER = ['Hidden', 'The Party', 'Camp Companion', 'Allies', 'Neutral', 'Enemies'];
+    const GROUP_ORDER = ['Hidden', 'The Party', 'Camp Companions', 'Allies', 'Neutral', 'Enemies'];
     return Object.values(groupMap).sort((a, b) => {
       const ai = GROUP_ORDER.indexOf(a.grp);
       const bi = GROUP_ORDER.indexOf(b.grp);
