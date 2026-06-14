@@ -9,6 +9,7 @@ import { useCharacters } from '../hooks/useCharacters';
 import { useLocations } from '../hooks/useLocations';
 import { useQuests } from '../hooks/useQuests';
 import { useLoot } from '../hooks/useLoot';
+import { useSettings } from '../hooks/useSettings';
 import './HomePage.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
@@ -51,6 +52,7 @@ const TYPE_ROUTE = { location: '/locations', character: '/characters', quest: '/
 
 export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [peekUser, setPeekUser] = useState(null);
+  const { settings } = useSettings();
   const { activity } = useActivity({ isDM, userId: user?.uid, max: 5 });
   const { entries: timelineEntries } = useTimeline(CAMPAIGN_ID, { isDM });
   const { mergedRoster } = useCharacters({ isDM });
@@ -83,8 +85,8 @@ export default function HomePage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
             {/* hero */}
             <div className="hero">
               <div>
-                <div className="eyebrow">The Land of Barovia</div>
-                <h2>The mists do not lift.</h2>
+                <div className="eyebrow">{settings.homeTitle}</div>
+                <h2>{settings.homeSubtitle}</h2>
                 <div className="moon">734 · Waning of the Crow Moon</div>
               </div>
               <div className="stats">

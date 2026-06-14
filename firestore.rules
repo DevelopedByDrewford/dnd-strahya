@@ -76,6 +76,12 @@ service cloud.firestore {
       allow read, write: if isDM();
     }
 
+    // ── campaign settings ─────────────────────────────────────────────────────
+    match /campaigns/{campaignId}/settings/{docId} {
+      allow read:   if isSignedIn();
+      allow write:  if isDM();
+    }
+
     // ── presence ──────────────────────────────────────────────────────────────
     match /campaigns/{campaignId}/presence/{userId} {
       allow read:   if isSignedIn();

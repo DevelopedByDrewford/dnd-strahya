@@ -5,6 +5,7 @@ import Topbar from '../components/Topbar';
 import TimelineEntryModal from '../components/TimelineEntryModal';
 import { TL_I } from '../data/timeline';
 import { useTimeline } from '../hooks/useTimeline';
+import { useSettings } from '../hooks/useSettings';
 import './TimelinePage.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
@@ -126,6 +127,7 @@ function TimelineEntry({ e, isDM, isNewest, entryRef, onEdit, onDelete }) {
 
 export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { settings } = useSettings();
   const { entries, loading, addEntry, updateEntry, deleteEntry, seedEntries } = useTimeline(CAMPAIGN_ID, { isDM });
   const [activeId, setActiveId]     = useState(null);
   const [srailOpen, setSrailOpen]   = useState(false);
@@ -242,8 +244,8 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
 
           <section className="chron">
             <div className="chero">
-              <div className="eyebrow">The Chronicle of Barovia</div>
-              <h1>The Story So Far</h1>
+              <div className="eyebrow">{settings.timelineTitle}</div>
+              <h1>{settings.timelineSubtitle}</h1>
               <div className="sub">734 · Waning of the Crow Moon — Day {dayCount} of the mists</div>
               <div className="cstats">
                 <div className="cstat"><b>{sessionCount}</b><span>Sessions</span></div>

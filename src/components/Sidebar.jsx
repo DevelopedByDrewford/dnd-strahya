@@ -3,10 +3,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
 import PresenceBar from './PresenceBar';
 import PlayersModal from './PlayersModal';
+import SettingsModal from './SettingsModal';
 import { lang } from '../data/lang';
 import { useCharacters } from '../hooks/useCharacters';
 import { useLocations } from '../hooks/useLocations';
 import { useQuests } from '../hooks/useQuests';
+import { useSettings } from '../hooks/useSettings';
 import './Sidebar.css';
 
 const CREATE_ITEMS = [
@@ -72,7 +74,9 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
   const [showProfile, setShowProfile] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [showPlayers, setShowPlayers] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
+  const { settings, updateSettings } = useSettings();
 
   const { mergedRoster } = useCharacters({ isDM });
   const { locations } = useLocations({ isDM });
@@ -100,8 +104,8 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
             </svg>
           </span>
           <div>
-            <h1>The Tome</h1>
-            <small>Curse of Strahd</small>
+            <h1>{settings.subtitle}</h1>
+            <small>{settings.title}</small>
           </div>
         </div>
 
@@ -137,6 +141,10 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
         <button className="nav dm-only" style={{ '--d': 'flex' }} onClick={() => setShowCreate(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 5v14M5 12h14"/></svg>
           {lang.add_new}
+        </button>
+        <button className="nav dm-only" style={{ '--d': 'flex' }} onClick={() => setShowSettings(true)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          Settings
         </button>
 
         <div className="rail-presbar">
@@ -188,6 +196,14 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
 
       {showPlayers && (
         <PlayersModal currentUserId={user?.uid} onClose={() => setShowPlayers(false)} />
+      )}
+
+      {showSettings && (
+        <SettingsModal
+          settings={settings}
+          onUpdate={updateSettings}
+          onClose={() => setShowSettings(false)}
+        />
       )}
 
       {showCreate && (

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { useLoot } from '../hooks/useLoot';
+import { useSettings } from '../hooks/useSettings';
 import { QI } from '../data/quests';
 import './LootPage.css';
 
@@ -229,6 +230,7 @@ function AddLootModal({ isDM, onClose, onAdd }) {
 export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(searchParams.get('new') === 'true');
+  const { settings } = useSettings();
 
   const { items, totalGp, addItem, claimItem } = useLoot(CAMPAIGN_ID, { isDM, userId: CURRENT_USER });
 
@@ -280,8 +282,8 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
         <div className="lt-wrap">
           <div className="lt-head">
             <div>
-              <div className="eyebrow">Shared between the party</div>
-              <h1>The Pile</h1>
+              <div className="eyebrow">{settings.lootTitle}</div>
+              <h1>{settings.lootSubtitle}</h1>
             </div>
             <div className="lt-purse">
               <div className="lt-purse-coin">
