@@ -65,19 +65,19 @@ function TreeNode({ node, selectedId, collapsedIds, onSelect, onToggle }) {
 }
 
 // ---- Sub-location card ----
-function SubCard({ sub, onSelect }) {
-  return (
-    <button
-      className={`subcard${sub.dm ? ' dm-only reveal-frame' : ''}`}
-      style={sub.dm ? { '--d': 'block' } : undefined}
-      onClick={() => onSelect(sub.id)}
-    >
-      <div className="subcard-ic" dangerouslySetInnerHTML={{ __html: ICONS[sub.ic] || ICONS.door }} />
-      <h4>{sub.n}</h4>
-      <div className="subcard-d">{sub.d}</div>
-    </button>
-  );
-}
+// function SubCard({ sub, onSelect }) {
+//   return (
+//     <button
+//       className={`subcard${sub.dm ? ' dm-only reveal-frame' : ''}`}
+//       style={sub.dm ? { '--d': 'block' } : undefined}
+//       onClick={() => onSelect(sub.id)}
+//     >
+//       <div className="subcard-ic" dangerouslySetInnerHTML={{ __html: ICONS[sub.ic] || ICONS.door }} />
+//       <h4>{sub.n}</h4>
+//       <div className="subcard-d">{sub.d}</div>
+//     </button>
+//   );
+// }
 
 // ---- Person card ----
 function PersonCard({ person }) {
