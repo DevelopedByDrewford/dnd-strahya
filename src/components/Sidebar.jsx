@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
 import PresenceBar from './PresenceBar';
@@ -77,6 +77,12 @@ export default function Sidebar({ isDM, onCloseNav, user, profile, onSignIn, onS
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
   const { settings, updateSettings } = useSettings();
+
+  useEffect(() => {
+    function onOpen() { setShowSettings(true); }
+    window.addEventListener('open-settings', onOpen);
+    return () => window.removeEventListener('open-settings', onOpen);
+  }, []);
 
   const { mergedRoster } = useCharacters({ isDM });
   const { locations } = useLocations({ isDM });

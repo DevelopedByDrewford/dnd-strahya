@@ -21,11 +21,12 @@ const PAGES = [
 ];
 
 const ALL_ACTIONS = [
-  { type: 'action', label: 'New timeline entry', sub: 'Log a session moment',   to: '/timeline?new=true',  dmOnly: true,  icon: 'timeline' },
-  { type: 'action', label: 'New location',        sub: 'Add a place to the world', to: '/locations?new=true', dmOnly: true,  icon: 'location' },
-  { type: 'action', label: 'New character',       sub: 'Add an NPC or ally',     to: '/characters?new=true', dmOnly: true,  icon: 'character' },
-  { type: 'action', label: 'New quest',           sub: 'Track a new quest',      to: '/quests?new=true',    dmOnly: false, icon: 'quest' },
-  { type: 'action', label: 'New loot item',       sub: 'Add to the party pile',  to: '/loot?new=true',      dmOnly: false, icon: 'loot' },
+  { type: 'action', label: 'New timeline entry', sub: 'Log a session moment',      to: '/timeline?new=true',   dmOnly: true,  icon: 'timeline' },
+  { type: 'action', label: 'New location',       sub: 'Add a place to the world',  to: '/locations?new=true',  dmOnly: true,  icon: 'location' },
+  { type: 'action', label: 'New character',      sub: 'Add an NPC or ally',        to: '/characters?new=true', dmOnly: true,  icon: 'character' },
+  { type: 'action', label: 'New quest',          sub: 'Track a new quest',         to: '/quests?new=true',     dmOnly: false, icon: 'quest' },
+  { type: 'action', label: 'New loot item',      sub: 'Add to the party pile',     to: '/loot?new=true',       dmOnly: false, icon: 'loot' },
+  { type: 'action', label: 'Settings',           sub: 'Edit campaign settings',    event: 'open-settings',     dmOnly: true,  icon: 'settings' },
 ];
 
 const ICONS = {
@@ -37,6 +38,7 @@ const ICONS = {
   quest:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 3v18l4-3 4 3V3z"/><path d="M13 3h6v15"/></svg>,
   loot:      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 9h16v10H4z"/><path d="M4 9l2-4h12l2 4M12 9v10M9 13h6"/></svg>,
   activity:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>,
+  settings:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
 };
 
 function hit(text, q) {
@@ -164,8 +166,12 @@ export default function GlobalSearch({ isDM, user, profile }) {
   const flatItems = useMemo(() => sections.flatMap(s => s.items), [sections]);
 
   function go(item) {
-    navigate(item.to);
     close();
+    if (item.event) {
+      window.dispatchEvent(new Event(item.event));
+    } else {
+      navigate(item.to);
+    }
   }
 
   function handleKeyDown(e) {
