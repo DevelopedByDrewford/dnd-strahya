@@ -288,13 +288,6 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
                   />
                 </div>
               )}
-              {!isDM && (
-                <div className="entry" style={{ marginBottom: 0 }}>
-                  <span className="node" style={{ borderStyle: 'dashed' }} />
-                  <button className="btn ghost" style={{ borderStyle: 'dashed' }}
-                    dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' Log a new entry' }} />
-                </div>
-              )}
             </div>
           </section>
         </div>
