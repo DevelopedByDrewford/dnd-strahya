@@ -140,6 +140,7 @@
   font-size: 12px; padding: 4px 10px; border-radius: 30px;
   border: 1px solid var(--line); color: var(--ink-2);
   background: rgba(255,255,255,.02); cursor: pointer; transition: .14s;
+  text-decoration: none;
 }
 .lchip:hover { border-color: var(--line-2); color: var(--ink); }
 .lchip svg { width: 12px; height: 12px; opacity: .8; }

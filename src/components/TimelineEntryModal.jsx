@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import LinkedRecordPicker from './LinkedRecordPicker';
 
 const KINDS = ['', 'milestone', 'dramatic'];
 const KIND_LABELS = { '': 'Normal', milestone: 'Milestone', dramatic: 'Turning Point' };
 
-export default function TimelineEntryModal({ entry, defaultAuthor, onSave, onClose }) {
+export default function TimelineEntryModal({ entry, defaultAuthor, onSave, onClose, linkedOptions = [] }) {
   const [form, setForm] = useState(() => ({
     session: '',
     day: '',
@@ -13,6 +14,7 @@ export default function TimelineEntryModal({ entry, defaultAuthor, onSave, onClo
     dmNote: '',
     author: defaultAuthor || '',
     hidden: false,
+    links: [],
   }));
   const [saving, setSaving] = useState(false);
 
@@ -27,6 +29,7 @@ export default function TimelineEntryModal({ entry, defaultAuthor, onSave, onClo
         dmNote: entry.dmNote || '',
         author: entry.author || defaultAuthor || '',
         hidden: entry.hidden || false,
+        links: (entry.links || []).filter(l => l.id && l.kind),
       });
     }
   }, [entry, defaultAuthor]);
@@ -49,7 +52,7 @@ export default function TimelineEntryModal({ entry, defaultAuthor, onSave, onClo
         dmNote: form.dmNote.trim() || null,
         author: form.author.trim() || null,
         hidden: form.hidden,
-        links: entry?.links || [],
+        links: form.links,
       });
       onClose();
     } finally {
@@ -109,6 +112,15 @@ export default function TimelineEntryModal({ entry, defaultAuthor, onSave, onClo
             <textarea className="finput ftarea" rows={5} value={form.body}
               onChange={e => set('body', e.target.value)}
               placeholder="Narrative summary of the session..." />
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Linked Articles</label>
+            <LinkedRecordPicker
+              items={form.links}
+              onChange={links => set('links', links)}
+              options={linkedOptions}
+            />
           </div>
 
           <div className="frow">

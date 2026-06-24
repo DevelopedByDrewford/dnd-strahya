@@ -1,11 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import TimelineEntryModal from '../components/TimelineEntryModal';
 import { TL_I } from '../data/timeline';
 import { useTimeline } from '../hooks/useTimeline';
 import { useSettings } from '../hooks/useSettings';
+import { useCharacters } from '../hooks/useCharacters';
+import { useLocations } from '../hooks/useLocations';
+import { useQuests } from '../hooks/useQuests';
 import './TimelinePage.css';
 
 const CAMPAIGN_ID = process.env.REACT_APP_CAMPAIGN_ID || 'cos';
@@ -19,6 +22,29 @@ const KIND_BADGE = {
   dramatic:  <span className="ekind dr">Turning point</span>,
   now:       <span className="ekind nw">Most recent</span>,
 };
+
+function chipIcon(l) {
+  if (l.t) return TL_I[l.t] || '';
+  const map = { character: 'user', location: 'pin', quest: 'quest' };
+  return TL_I[map[l.kind]] || '';
+}
+
+function chipClass(l) {
+  if (l.c) return l.c;
+  if (l.kind === 'quest') return 'q';
+  if (l.kind === 'character') return 'p';
+  return '';
+}
+
+function chipName(l) { return l.name || l.n || ''; }
+
+function chipHref(l) {
+  if (!l.id || !l.kind) return null;
+  if (l.kind === 'character') return `/characters?id=${l.id}`;
+  if (l.kind === 'location') return `/locations?id=${l.id}`;
+  if (l.kind === 'quest') return `/quests?id=${l.id}`;
+  return null;
+}
 
 function SessionRail({ entries, activeId, onJump, isDM }) {
   return (
@@ -106,12 +132,19 @@ function TimelineEntry({ e, isDM, isNewest, entryRef, onEdit, onDelete }) {
         <h3>{e.title}</h3>
         <div className="eprose">{e.body}</div>
         <div className="echips">
-          {(e.links || []).map((l, i) => (
-            <span key={i} className={`lchip ${l.c || ''}`}>
-              <span dangerouslySetInnerHTML={{ __html: TL_I[l.t] || '' }} />
-              {l.n}
-            </span>
-          ))}
+          {(e.links || []).map((l, i) => {
+            const href = chipHref(l);
+            const cls = `lchip ${chipClass(l)}`.trim();
+            const inner = (
+              <>
+                <span dangerouslySetInnerHTML={{ __html: chipIcon(l) }} />
+                {chipName(l)}
+              </>
+            );
+            return href
+              ? <Link key={i} to={href} className={cls}>{inner}</Link>
+              : <span key={i} className={cls}>{inner}</span>;
+          })}
         </div>
         {e.author && (
           <div className="eauthor">
@@ -129,6 +162,9 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
   const [searchParams, setSearchParams] = useSearchParams();
   const { settings } = useSettings();
   const { entries, loading, addEntry, updateEntry, deleteEntry, seedEntries } = useTimeline(CAMPAIGN_ID, { isDM });
+  const { mergedRoster: charRoster } = useCharacters({ isDM });
+  const { locations } = useLocations({ isDM });
+  const { quests } = useQuests({ isDM });
   const [activeId, setActiveId]     = useState(null);
   const [srailOpen, setSrailOpen]   = useState(false);
   const [modalEntry, setModalEntry] = useState(searchParams.get('new') === 'true' ? null : undefined); // undefined = closed, null = new, obj = edit
@@ -140,6 +176,12 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
     if (searchParams.get('new') !== 'true') return;
     setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('new'); return n; }, { replace: true });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const linkedOptions = useMemo(() => [
+    ...charRoster.flatMap(g => g.items.map(c => ({ id: c.id, name: c.n, kind: 'character' }))),
+    ...locations.map(l => ({ id: l.id, name: l.name, kind: 'location' })),
+    ...quests.map(q => ({ id: q.id, name: q.name, kind: 'quest' })),
+  ], [charRoster, locations, quests]);
 
   async function handleSeed() {
     setSeeding(true);
@@ -301,6 +343,7 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
           defaultAuthor={profile?.displayName ?? user?.email ?? ''}
           onSave={handleSave}
           onClose={() => setModalEntry(undefined)}
+          linkedOptions={linkedOptions}
         />
       )}
 
