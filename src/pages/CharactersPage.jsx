@@ -16,9 +16,11 @@ const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const EDIT_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2 2 0 013 3L12 15l-4 1 1-4z"/></svg>';
 const SCROLL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 21h12M8 21a3 3 0 010-6h12v4.5A2.5 2.5 0 0117.5 22H8z"/><path d="M8 3h12v12H8z"/></svg>';
 const PLUS_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
+const EYE_SVG    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_SVG= '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07A3 3 0 009 12c0 .34.05.67.14.98M7.76 7.76L3 3m18 18l-4.35-4.35"/></svg>';
 
 
-function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile, onImageClick }) {
+function CharacterDetail({ ch, isDM, onEdit, onDelete, onToggleVisibility, user, profile, onImageClick }) {
 
   return (
     <div className="char-detail">
@@ -54,6 +56,10 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, user, profile, onImageCli
             {isDM && ch.firestore && (
               <>
                 <button className="btn sm" onClick={onEdit} dangerouslySetInnerHTML={{ __html: EDIT_SVG + ' Edit' }} />
+                {ch.visibility === 'hidden'
+                  ? <button className="btn sm primary" onClick={onToggleVisibility} dangerouslySetInnerHTML={{ __html: EYE_SVG + ' Reveal to Players' }} />
+                  : <button className="btn sm ghost" onClick={onToggleVisibility} dangerouslySetInnerHTML={{ __html: EYE_OFF_SVG + ' Hide from Players' }} />
+                }
                 <button className="btn sm ghost" onClick={onDelete} style={{ color: 'var(--blood)' }} dangerouslySetInnerHTML={{ __html: SCROLL_SVG + ' Delete' }} />
               </>
             )}
@@ -258,6 +264,12 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
     await deleteCharacter(selectedId);
   }
 
+  async function handleToggleVisibility() {
+    const ch = getChar(selectedId);
+    const next = ch.visibility === 'hidden' ? 'players' : 'hidden';
+    await updateCharacter(selectedId, { visibility: next });
+  }
+
   const q = query.toLowerCase();
   const filteredRoster = mergedRoster.map(grp => ({
     ...grp,
@@ -351,7 +363,7 @@ export default function CharactersPage({ isDM, onToggleDM, onToggleNav, onCloseN
 
           {/* Character detail */}
           {getChar(selectedId) && (
-            <CharacterDetail key={selectedId} ch={getChar(selectedId)} isDM={isDM} onEdit={openEdit} onDelete={handleDelete} user={user} profile={profile} onImageClick={setLightbox} />
+            <CharacterDetail key={selectedId} ch={getChar(selectedId)} isDM={isDM} onEdit={openEdit} onDelete={handleDelete} onToggleVisibility={handleToggleVisibility} user={user} profile={profile} onImageClick={setLightbox} />
           )}
 
         </div>
