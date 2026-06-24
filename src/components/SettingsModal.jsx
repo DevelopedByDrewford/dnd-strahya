@@ -44,10 +44,16 @@ export default function SettingsModal({ settings, onUpdate, onClose }) {
   async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
-    await onUpdate(form);
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await onUpdate(form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      alert('Failed to save settings. Check console for details.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (

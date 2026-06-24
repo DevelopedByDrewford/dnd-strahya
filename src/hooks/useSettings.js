@@ -20,9 +20,12 @@ export function useSettings() {
 
   useEffect(() => {
     const ref = doc(db, 'campaigns', CAMPAIGN_ID, 'settings', 'main');
-    return onSnapshot(ref, snap => {
-      if (snap.exists()) setSettings({ ...SETTINGS_DEFAULTS, ...snap.data() });
-    });
+    return onSnapshot(ref,
+      snap => {
+        if (snap.exists()) setSettings({ ...SETTINGS_DEFAULTS, ...snap.data() });
+      },
+      err => console.error('useSettings onSnapshot error:', err)
+    );
   }, []);
 
   async function updateSettings(updates) {
