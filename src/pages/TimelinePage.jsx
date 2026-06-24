@@ -254,6 +254,18 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
               </div>
             </div>
 
+            {isDM && (
+              <div className="entry addentry dm-only" style={{ '--d': 'block', marginBottom: 0 }}>
+                <span className="node" style={{ borderStyle: 'dashed' }} />
+                <button
+                  className="btn ghost"
+                  style={{ borderStyle: 'dashed' }}
+                  onClick={() => setModalEntry(null)}
+                  dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' Log a new entry' }}
+                />
+              </div>
+            )}
+
             <div className="spine">
               {!loading && entries.length === 0 && isDM && (
                 <div className="entry" style={{ marginBottom: 0 }}>
@@ -277,17 +289,7 @@ export default function TimelinePage({ isDM, onToggleDM, onToggleNav, onCloseNav
                   onDelete={setDeleteTarget}
                 />
               ))}
-              {isDM && (
-                <div className="entry addentry dm-only" style={{ '--d': 'block', marginBottom: 0 }}>
-                  <span className="node" style={{ borderStyle: 'dashed' }} />
-                  <button
-                    className="btn ghost"
-                    style={{ borderStyle: 'dashed' }}
-                    onClick={() => setModalEntry(null)}
-                    dangerouslySetInnerHTML={{ __html: PLUS_SVG + ' Log a new entry' }}
-                  />
-                </div>
-              )}
+
             </div>
           </section>
         </div>
