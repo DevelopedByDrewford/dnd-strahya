@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  collection, doc, addDoc, setDoc, updateDoc,
+  collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
   onSnapshot, query, where, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -92,5 +92,10 @@ export function useLoot(campaignId, { isDM = false, userId = 'Tessa' } = {}) {
     return updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
   }
 
-  return { items, loading, error, totalGp, addItem, claimItem, updateItem };
+  async function deleteItem(id) {
+    await deleteDoc(doc(db, 'campaigns', campaignId, 'loot', id));
+    await deleteDoc(doc(db, 'campaigns', campaignId, 'lootDm', id)).catch(() => {});
+  }
+
+  return { items, loading, error, totalGp, addItem, claimItem, updateItem, deleteItem };
 }

@@ -12,6 +12,7 @@ const CURRENT_USER = 'Tessa';
 
 
 const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
+const PENCIL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>';
 
 const ICON_KEYS = ['coin', 'sword', 'potion', 'book'];
 
@@ -43,7 +44,7 @@ function ClaimControl({ item, isDM, onClaim, onRelease }) {
 
 // ── LootRow ───────────────────────────────────────────────────────────────────
 
-function LootRow({ item, isDM, onClaim, onRelease }) {
+function LootRow({ item, isDM, onClaim, onRelease, onEdit }) {
   return (
     <div className="lt-row">
       <span
@@ -64,13 +65,21 @@ function LootRow({ item, isDM, onClaim, onRelease }) {
         <ClaimControl item={item} isDM={isDM} onClaim={onClaim} onRelease={onRelease} />
       </span>
       <span className="lt-val">{item.value}</span>
+      <span className="lt-edit-col">
+        <button
+          className="lt-edit-btn"
+          onClick={() => onEdit(item)}
+          title="Edit item"
+          dangerouslySetInnerHTML={{ __html: PENCIL_SVG }}
+        />
+      </span>
     </div>
   );
 }
 
 // ── LootTable ─────────────────────────────────────────────────────────────────
 
-function LootTable({ items, isDM, onClaim, onRelease, onAdd }) {
+function LootTable({ items, isDM, onClaim, onRelease, onAdd, onEdit }) {
   if (!items.length) {
     return (
       <div className="lt-empty">
@@ -92,6 +101,7 @@ function LootTable({ items, isDM, onClaim, onRelease, onAdd }) {
         <span className="lt-hfound">Found at</span>
         <span className="lt-hclaim">Claimed by</span>
         <span className="lt-hval">Value</span>
+        <span />
       </div>
       {items.map(item => (
         <LootRow
@@ -100,6 +110,7 @@ function LootTable({ items, isDM, onClaim, onRelease, onAdd }) {
           isDM={isDM}
           onClaim={onClaim}
           onRelease={onRelease}
+          onEdit={onEdit}
         />
       ))}
     </div>
@@ -108,8 +119,19 @@ function LootTable({ items, isDM, onClaim, onRelease, onAdd }) {
 
 // ── AddLootModal ──────────────────────────────────────────────────────────────
 
-function AddLootModal({ isDM, onClose, onAdd }) {
-  const [form, setForm] = useState({
+function AddLootModal({ isDM, onClose, onAdd, onSave, onDelete, initialItem }) {
+  const isEdit = !!initialItem;
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [form, setForm] = useState(isEdit ? {
+    name: initialItem.name || '',
+    subtitle: initialItem.subtitle || '',
+    icon: initialItem.icon || 'coin',
+    foundAt: initialItem.foundAt || '',
+    quantity: initialItem.quantity || 1,
+    value: initialItem.value || '',
+    recordVisibility: initialItem.recordVisibility || 'public',
+    dmNote: '',
+  } : {
     name: '',
     subtitle: '',
     icon: 'coin',
@@ -128,7 +150,11 @@ function AddLootModal({ isDM, onClose, onAdd }) {
     e.preventDefault();
     if (!form.name.trim()) return;
     const { dmNote, ...rest } = form;
-    onAdd({ ...rest, dmNote: dmNote.trim() || null });
+    if (isEdit) {
+      onSave({ ...rest, dmNote: dmNote.trim() || null });
+    } else {
+      onAdd({ ...rest, dmNote: dmNote.trim() || null });
+    }
     onClose();
   }
 
@@ -136,7 +162,7 @@ function AddLootModal({ isDM, onClose, onAdd }) {
     <div className="lt-overlay" onClick={onClose}>
       <div className="lt-modal" onClick={e => e.stopPropagation()}>
         <div className="lt-modal-head">
-          <h2>Add Loot</h2>
+          <h2>{isEdit ? 'Edit Loot' : 'Add Loot'}</h2>
           <button className="btn sm ghost" onClick={onClose}>✕</button>
         </div>
 
@@ -215,10 +241,23 @@ function AddLootModal({ isDM, onClose, onAdd }) {
             </>
           )}
 
-          <div className="lt-form-actions">
-            <button type="submit" className="btn gold">Add to pile</button>
-            <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>
-          </div>
+          {confirmDelete ? (
+            <div className="lt-form-actions lt-delete-confirm">
+              <span className="lt-delete-label">Delete this item?</span>
+              <button type="button" className="btn danger" onClick={() => { onDelete(); onClose(); }}>Yes, delete</button>
+              <button type="button" className="btn ghost" onClick={() => setConfirmDelete(false)}>Never mind</button>
+            </div>
+          ) : (
+            <div className="lt-form-actions">
+              <button type="submit" className="btn gold">{isEdit ? 'Save changes' : 'Add to pile'}</button>
+              <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>
+              {isEdit && (
+                <button type="button" className="btn ghost lt-delete-trigger" onClick={() => setConfirmDelete(true)}>
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
         </form>
       </div>
     </div>
@@ -230,9 +269,10 @@ function AddLootModal({ isDM, onClose, onAdd }) {
 export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, user, profile, onSignIn, onSignOut, onProfileUpdate }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(searchParams.get('new') === 'true');
+  const [editingItem, setEditingItem] = useState(null);
   const { settings } = useSettings();
 
-  const { items, totalGp, addItem, claimItem } = useLoot(CAMPAIGN_ID, { isDM, userId: CURRENT_USER });
+  const { items, totalGp, addItem, claimItem, updateItem, deleteItem } = useLoot(CAMPAIGN_ID, { isDM, userId: CURRENT_USER });
 
   useEffect(() => {
     if (searchParams.get('new') !== 'true') return;
@@ -258,6 +298,15 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
   async function handleRelease(id) {
     try {
       await claimItem(id, null);
+    } catch {
+      // no-op
+    }
+  }
+
+  async function handleSave(id, data) {
+    try {
+      const { dmNote, ...rest } = data;
+      await updateItem(id, rest);
     } catch {
       // no-op
     }
@@ -308,6 +357,7 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
             onClaim={handleClaim}
             onRelease={handleRelease}
             onAdd={() => setModalOpen(true)}
+            onEdit={item => setEditingItem(item)}
           />
         </div>
       </div>
@@ -317,6 +367,16 @@ export default function LootPage({ isDM, onToggleDM, onToggleNav, onCloseNav, us
           isDM={isDM}
           onClose={() => setModalOpen(false)}
           onAdd={handleAdd}
+        />
+      )}
+
+      {editingItem && (
+        <AddLootModal
+          isDM={isDM}
+          initialItem={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSave={data => handleSave(editingItem.id, data)}
+          onDelete={async () => { try { await deleteItem(editingItem.id); } catch {} }}
         />
       )}
 
