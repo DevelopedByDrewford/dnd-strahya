@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import LinkedRecordPicker from './LinkedRecordPicker';
+import { STATUS_ICONS } from '../data/characters';
 
 const GROUPS = ['The Party', 'Camp Companions', 'Allies', 'Neutral', 'Enemies'];
+const STATUS_ICON_KEYS = Object.keys(STATUS_ICONS);
+
+const BLANK_STATUS = { t: '', i: 'alert', c: 'bad' };
 
 const BLANK = {
   name: '',
@@ -14,6 +18,7 @@ const BLANK = {
   appearance: '',
   personality: '',
   secret: '',
+  statuses: [],
   rels: [],
 };
 
@@ -30,6 +35,7 @@ export default function CharacterModal({ initial, onSave, onClose, allCharacters
     appearance: Array.isArray(initial.appearance) ? initial.appearance.join('\n\n') : initial.appearance || '',
     personality: initial.personality || '',
     secret: initial.secret || '',
+    statuses: initial.statuses || [],
     rels: initial.rels || [],
   } : BLANK);
   const [saving, setSaving] = useState(false);
@@ -54,6 +60,7 @@ export default function CharacterModal({ initial, onSave, onClose, allCharacters
         appearance: form.appearance.trim(),
         personality: form.personality.trim(),
         secret: form.secret.trim(),
+        statuses: form.statuses.filter(s => s.t.trim()),
         rels: form.rels,
       });
       onClose();
@@ -176,6 +183,64 @@ export default function CharacterModal({ initial, onSave, onClose, allCharacters
               onChange={e => set('personality', e.target.value)}
               placeholder="Traits, ideals, flaws…"
             />
+          </div>
+
+          <div className="frow">
+            <label className="flabel">Statuses</label>
+            <div className="status-editor">
+              {form.statuses.map((s, i) => (
+                <div key={i} className="status-row">
+                  <select
+                    className="finput finput-icon"
+                    value={s.i}
+                    onChange={e => {
+                      const next = form.statuses.map((x, j) => j === i ? { ...x, i: e.target.value } : x);
+                      set('statuses', next);
+                    }}
+                  >
+                    {STATUS_ICON_KEYS.map(k => <option key={k} value={k}>{k}</option>)}
+                  </select>
+                  <input
+                    className="finput"
+                    value={s.t}
+                    placeholder="Label (e.g. Cursed)"
+                    onChange={e => {
+                      const next = form.statuses.map((x, j) => j === i ? { ...x, t: e.target.value } : x);
+                      set('statuses', next);
+                    }}
+                  />
+                  <select
+                    className="finput finput-color"
+                    value={s.c}
+                    onChange={e => {
+                      const next = form.statuses.map((x, j) => j === i ? { ...x, c: e.target.value } : x);
+                      set('statuses', next);
+                    }}
+                  >
+                    <option value="good">Good</option>
+                    <option value="">Neutral</option>
+                    <option value="bad">Bad</option>
+                  </select>
+                  <button
+                    type="button"
+                    className="btn icon ghost"
+                    onClick={() => set('statuses', form.statuses.filter((_, j) => j !== i))}
+                    aria-label="Remove status"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={() => set('statuses', [...form.statuses, { ...BLANK_STATUS }])}
+              >
+                + Add status
+              </button>
+            </div>
           </div>
 
           <div className="frow">

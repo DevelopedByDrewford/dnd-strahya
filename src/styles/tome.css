@@ -414,6 +414,13 @@ select.finput { cursor: pointer; }
 }
 .fdm-note .flabel { color: #f0b3ad; }
 
+.status-editor { display: flex; flex-direction: column; gap: 6px; }
+.status-row { display: flex; gap: 6px; align-items: center; }
+.status-row .finput { flex: 1; }
+.status-row .finput-icon { flex: 0 0 auto; width: 90px; }
+.status-row .finput-color { flex: 0 0 auto; width: 80px; }
+.status-row .btn.icon { flex-shrink: 0; padding: 6px; }
+
 @media (max-width: 760px) {
   .modal-overlay { align-items: flex-end; padding: 0; }
   .modal-overlay .modal-box {
