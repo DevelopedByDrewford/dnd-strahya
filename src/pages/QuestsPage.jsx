@@ -15,7 +15,7 @@ import { lang } from '../data/lang';
 const QLIST_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>';
 const PLUS_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>';
 
-const FILTERS = ['Active', 'Completed', 'All', 'Mine'];
+const FILTERS = ['All', 'Active', 'Completed'];
 
 function pct(q) {
   if (!q.subs.length) return 0;
