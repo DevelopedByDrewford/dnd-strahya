@@ -68,14 +68,14 @@ function CharacterDetail({ ch, isDM, onEdit, onDelete, onToggleVisibility, user,
       </div>
 
       {/* Quick Facts */}
-      <div className="char-facts">
+      {/* <div className="char-facts">
         {ch.facts.map((f, i) => (
           <div key={i} className="cfact">
             <div className="ck">{f.k}</div>
             <div className={`cv${f.link ? ' link' : ''}`}>{f.v}</div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* Appearance */}
       <div className="char-sec">
